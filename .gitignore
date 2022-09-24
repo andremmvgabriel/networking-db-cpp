@@ -32,4 +32,8 @@
 *.app
 
 #
+bin/*
 build/*
+*.db
+project_manager.sh
+.vscode
