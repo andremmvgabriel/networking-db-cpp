@@ -29,3 +29,6 @@ INCLUDE_DIRECTORIES ( include )
 
 add_executable( Main main.cpp )
 target_link_libraries( Main fmt sqlite3 )
+
+add_executable( Clients main_clients.cpp )
+target_link_libraries( Clients fmt sqlite3 )
