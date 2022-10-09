@@ -33,6 +33,7 @@
 
 #
 bin/*
+lib/*
 build/*
 *.db
 project_manager.sh

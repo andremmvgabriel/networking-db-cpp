@@ -12,6 +12,8 @@ install_fmt_library() {
     sudo apt install -y libfmt-dev
 }
 
+# https://github.com/CrowCpp/Crow
+# https://crowcpp.org/master/getting_started/setup/linux/
 install_crow_library() {
     sudo apt-get update
 
