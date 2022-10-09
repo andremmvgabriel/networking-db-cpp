@@ -325,42 +325,6 @@ std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDat
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// static int _temp(void *data, int argc, char **argv, char **azColName) {
-//     for (int i = 0 ; i < argc; i++) {
-//         printf("%s: %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-//     }
-
-//     return 0;
-// }
-
-// std::string gabe::networkingDB::NetworkDatabase::get_message() {
-//     std::string output;
-
-//     // std::string query = "UPDATE Sessions SET CLIENTS=registry.CLIENTS+1 FROM ( SELECT ID, CLIENTS FROM Sessions WHERE ID = 1 ORDER BY ID ASC LIMIT 1 ) WHERE ID = 1";
-//     // std::string query = "UPDATE Sessions SET CLIENTS=1 FROM ( SELECT ID, CLIENTS FROM Sessions WHERE ID = 1 ) AS registry WHERE ID = 1;";
-//     // std::string query = "UPDATE Sessions SET CLIENTS=1 FROM SELECT * FROM Session_1 AS registry WHERE ID=1;";
-//     // std::string query = "UPDATE Sessions SET CLIENTS=100 WHERE EXISTS ( SELECT ID, CLIENTS FROM Sessions WHERE ID = 100 ) AND ID = 1";
-
-//     // if( sqlite3_exec(_database, &query[0], _temp, (void*)&output, nullptr) != SQLITE_OK )
-//     //     printf("Failed to get message.\n");
-
-//     return output;
-// }
-
 // Internal functions
 
 void gabe::networkingDB::NetworkDatabase::_open_database() {
