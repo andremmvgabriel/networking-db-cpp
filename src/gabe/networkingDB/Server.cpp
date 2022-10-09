@@ -11,6 +11,34 @@ void gabe::networkingDB::Server::_create_routes() {
     //     [&] (const crow::request& request) {}
     // );
 
+    CROW_ROUTE( _app, "/connect").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            // crow::json::wvalue value;
+
+            // TODO: Verification/Validation
+
+            std::string client_name = request.url_params.get("name");
+
+            uint64_t network_id = _db.add_client(client_name);
+
+            // value["name"] = client_name;
+            // value["network_id"] = network_id;
+
+            return crow::response(std::to_string(network_id));
+        }
+    );
+
+    CROW_ROUTE( _app, "/disconnect").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            std::string client_name = request.url_params.get("name");
+            uint64_t client_id = std::stoul(request.url_params.get("id"));
+
+            _db.disconnect_client(client_id, client_name);
+
+            return crow::response("Disconnected.");
+        }
+    );
+
     CROW_ROUTE( _app, "/sessions").methods( "GET"_method )(
         [&] (const crow::request& request) {
             std::map<int, std::map<std::string, std::string>> sessions = _db.get_sessions();

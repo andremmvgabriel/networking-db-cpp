@@ -54,6 +54,7 @@ namespace gabe {
             std::map<int, std::map<std::string, std::string>> get_current_session();
 
             uint64_t add_client(const std::string &name);
+            void disconnect_client(const uint64_t &client_id, const std::string &client_name);
 
             std::map<int, std::map<std::string, std::string>> get_clients();
             std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);

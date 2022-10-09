@@ -1,22 +1,33 @@
 #pragma once
 
-#include <sqlite3.h>
-#include <fmt/format.h>
-
-#include <thread>
-#include <chrono>
 #include <string>
-#include <sstream>
+#include <memory>
 
 namespace gabe {
     namespace networkingDB {
         class Client
         {
-        public:
-            Client() {}
-            Client(const std::string &name) {}
+        private:
+            std::string _address = "";
+            std::string _username = "";
+            std::string _password = "";
 
-            void connect(const std::string &host, const uint16_t& port) {}
+            uint64_t _network_id = 0;
+        public:
+            std::shared_ptr<uint8_t> _instances;
+        
+        public:
+            const std::string name;
+
+        public:
+            Client();
+            Client(const std::string &name);
+            ~Client();
+
+            void connect(const std::string &host, const uint16_t& port);
+            void connect(const std::string &host, const uint16_t& port, const std::string &username, const std::string &password);
+
+            void disconnect();
         };
     }
 }

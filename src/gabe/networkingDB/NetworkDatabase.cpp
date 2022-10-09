@@ -1,28 +1,6 @@
 #include <gabe/networkingDB/NetworkDatabase.hpp>
 
 gabe::networkingDB::NetworkDatabase::NetworkDatabase() {
-    // _open_database();
-    // _create_sessions_table();
-    // uint64_t session_id = _create_new_session();
-    // _create_session_clients_table();
-    // uint64_t client_id1 = add_client("client");
-    // uint64_t client_id2 = add_client("client");
-    // uint64_t client_id3 = add_client("client");
-    // uint64_t client_id4 = add_client("client");
-    // uint64_t client_id5 = add_client("client");
-    // _create_session_topics_table();
-    // _create_new_subscription(client_id1, "topic1");
-    // _create_new_subscription(client_id1, "topic2");
-    // _create_new_subscription(client_id1, "topic3");
-    // _create_new_subscription(client_id2, "topic4");
-    // _create_new_subscription(client_id2, "topic5");
-    // _create_new_subscription(client_id5, "topic6");
-
-    // get_sessions();
-    // get_session(1);
-    // get_message();
-
-
     _open_database();
     _create_sessions_table();\
     _create_clients_table();
@@ -122,6 +100,21 @@ uint64_t gabe::networkingDB::NetworkDatabase::add_client(const std::string &name
         printf("Failed to create new client.\n");
     
     return client_id;
+}
+
+void gabe::networkingDB::NetworkDatabase::disconnect_client(const uint64_t &client_id, const std::string &client_name) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "UPDATE Clients SET Timestamp_Disc='{}', Status='{}' WHERE ID={} AND SID={} AND Name='{}'",
+        timestamp, "Disconnected", client_id, _active_session, client_name
+    );
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK )
+        printf("Failed to disconnect client.\n");
 }
 
 std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDatabase::get_clients() {
