@@ -62,6 +62,9 @@ namespace gabe {
             std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
 
             uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
+            uint64_t subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll);
+            void unsubscribe(const uint64_t &client_id, const uint64_t &topic_id);
+            void unsubscribe_all(const uint64_t &client_id);
 
             std::map<int, std::map<std::string, std::string>> get_topics();
             std::map<int, std::map<std::string, std::string>> get_topic(uint64_t topic_id);

@@ -193,6 +193,56 @@ uint64_t gabe::networkingDB::NetworkDatabase::add_topic(const uint64_t &client_i
     return topic_id;
 }
 
+uint64_t gabe::networkingDB::NetworkDatabase::subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "INSERT INTO Topics (SID,CID,Timestamp_Sub,Status,Name,Auto_Poll,Messages) VALUES({},{},{},'{}','{}',{},{}); SELECT Last_Insert_Rowid();",
+        _active_session, client_id, timestamp, "Active", name, auto_poll, 0
+    );
+
+    // Output topic ID
+    uint64_t topic_id;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_last_inserted_row_id_cb, (void*)&topic_id, nullptr) != SQLITE_OK )
+        printf("Failed to subscribe to topic.\n");
+    
+    return topic_id;
+}
+
+void gabe::networkingDB::NetworkDatabase::unsubscribe(const uint64_t &client_id, const uint64_t &topic_id) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "UPDATE Topics SET Timestamp_Unsub={}, Status='{}' WHERE SID={} AND CID={} AND ID={} AND Status='Active';",
+        timestamp, "Innactive", _active_session, client_id, topic_id
+    );
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK )
+        printf("Failed to unsubscribe topic.\n");
+}
+
+void gabe::networkingDB::NetworkDatabase::unsubscribe_all(const uint64_t &client_id) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "UPDATE Topics SET Timestamp_Unsub={}, Status='{}' WHERE SID={} AND CID={} AND Status='Active';",
+        timestamp, "Innactive", _active_session, client_id
+    );
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK )
+        printf("Failed to unsubscribe all topics.\n");
+}
+
 std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDatabase::get_topics() {
     // SQL QUERY
     std::string query = "SELECT * FROM Topics;";

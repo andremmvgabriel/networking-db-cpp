@@ -39,6 +39,45 @@ void gabe::networkingDB::Server::_create_routes() {
         }
     );
 
+    CROW_ROUTE( _app, "/subscribe").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            uint64_t client_id = std::stoul(request.url_params.get("client_id"));
+            std::string client_name = request.url_params.get("client_name"); // not being used. Remove if not necessary
+            std::string topic = request.url_params.get("topic");
+            bool auto_poll = std::stoi(request.url_params.get("auto_poll"));
+
+            uint64_t subscription_id = _db.subscribe(client_id, topic, auto_poll);
+
+            return crow::response(std::to_string(subscription_id));
+        }
+    );
+
+    CROW_ROUTE( _app, "/unsubscribe").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            uint64_t client_id = std::stoul(request.url_params.get("client_id"));
+            std::string client_name = request.url_params.get("client_name"); // not being used. Remove if not necessary
+            uint64_t topic_id = std::stoul(request.url_params.get("topic_id"));
+            std::string topic = request.url_params.get("topic_name");
+
+            _db.unsubscribe(client_id, topic_id);
+
+            return crow::response(200);
+        }
+    );
+
+    CROW_ROUTE( _app, "/unsubscribe_all").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            uint64_t client_id = std::stoul(request.url_params.get("client_id"));
+            std::string client_name = request.url_params.get("client_name"); // not being used. Remove if not necessary
+
+            _db.unsubscribe_all(client_id);
+
+            return crow::response(200);
+        }
+    );
+
+    //
+
     CROW_ROUTE( _app, "/sessions").methods( "GET"_method )(
         [&] (const crow::request& request) {
             std::map<int, std::map<std::string, std::string>> sessions = _db.get_sessions();

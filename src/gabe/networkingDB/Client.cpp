@@ -40,7 +40,7 @@ void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t
 void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t &port, const std::string &username, const std::string &password) {
     // Safety check
     if (_network_id) return;
-    
+
     // Creates the address
     _address = fmt::format("https://{}:{}", host, port);
     _username = username;
@@ -54,8 +54,58 @@ void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t
 }
 
 void gabe::networkingDB::Client::disconnect() {
+    // TODO: THIS SHOULD NOT BE A GET METHOD
     cpr::Response response = cpr::Get(
         cpr::Url{_address + "/disconnect"},
         cpr::Parameters{{"name", name}, {"id", std::to_string(_network_id)}}
+    );
+}
+
+void gabe::networkingDB::Client::subscribe(const std::string &topic) {
+    // TODO: THIS SHOULD NOT BE A GET METHOD
+    cpr::Response response = cpr::Get(
+        cpr::Url{_address + "/subscribe"},
+        cpr::Parameters{
+            {"client_id", std::to_string(_network_id)},
+            {"client_name", name},
+            {"topic", topic},
+            {"auto_poll", "0"}
+        }
+    );
+
+    // printf("");
+
+    if (response.status_code == 200) { // Everything OK!
+        uint64_t topic_id = std::stoul( response.text );
+        _topics_map[topic] = topic_id;
+    }
+}
+
+void gabe::networkingDB::Client::unsubscribe(const std::string &topic) {
+    // TODO: THIS SHOULD NOT BE A GET METHOD
+    cpr::Response response = cpr::Get(
+        cpr::Url{_address + "/unsubscribe"},
+        cpr::Parameters{
+            {"client_id", std::to_string(_network_id)},
+            {"client_name", name},
+            {"topic_id", std::to_string(_topics_map.at(topic))},
+            {"topic_name", topic}
+        }
+    );
+
+    if (response.status_code == 200) { // Everything OK!
+        _topics_map.erase(topic);
+        // REMOVE CALLBACK
+    }
+}
+
+void gabe::networkingDB::Client::unsubscribe_all() {
+    // TODO: THIS SHOULD NOT BE A GET METHOD
+    cpr::Response response = cpr::Get(
+        cpr::Url{_address + "/unsubscribe_all"},
+        cpr::Parameters{
+            {"client_id", std::to_string(_network_id)},
+            {"client_name", name}
+        }
     );
 }
