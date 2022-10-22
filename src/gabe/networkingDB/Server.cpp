@@ -76,6 +76,40 @@ void gabe::networkingDB::Server::_create_routes() {
         }
     );
 
+    CROW_ROUTE( _app, "/send_message").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            uint64_t client_id = std::stoul(request.url_params.get("client_id"));
+            std::string client_name = request.url_params.get("client_name"); // not being used. Remove if not necessary
+            uint64_t topic_id = std::stoul(request.url_params.get("topic_id"));
+            std::string topic = request.url_params.get("topic_name");
+            std::string message = request.url_params.get("message");
+
+            uint64_t message_id = _db.add_message(topic_id, message);
+
+            return crow::response(std::to_string(message_id));
+        }
+    );
+
+    CROW_ROUTE( _app, "/receive_message").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            uint64_t client_id = std::stoul(request.url_params.get("client_id"));
+            std::string client_name = request.url_params.get("client_name"); // not being used. Remove if not necessary
+            uint64_t topic_id = std::stoul(request.url_params.get("topic_id"));
+            std::string topic = request.url_params.get("topic_name");
+
+            std::map<int, std::map<std::string, std::string>> messages = _db.receive_message(topic_id);
+
+            if (messages.size() == 1) {
+                for (auto message : messages) {
+                    return crow::response(message.second.at("Content"));
+                }
+            }
+            else {
+                return crow::response(404);
+            }
+        }
+    );
+
     //
 
     CROW_ROUTE( _app, "/sessions").methods( "GET"_method )(

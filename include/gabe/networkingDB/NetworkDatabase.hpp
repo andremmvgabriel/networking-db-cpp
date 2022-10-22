@@ -72,6 +72,7 @@ namespace gabe {
             std::map<int, std::map<std::string, std::string>> get_topics_in_current_session();
 
             uint64_t add_message(const uint64_t &topic_id, const std::string &content);
+            std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
 
             std::map<int, std::map<std::string, std::string>> get_messages();
             std::map<int, std::map<std::string, std::string>> get_message(uint64_t message_id);

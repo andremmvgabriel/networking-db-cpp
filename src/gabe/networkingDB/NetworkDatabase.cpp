@@ -324,6 +324,31 @@ uint64_t gabe::networkingDB::NetworkDatabase::add_message(const uint64_t &topic_
     return message_id;
 }
 
+std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDatabase::receive_message(const uint64_t &topic_id) {
+    // SQL QUERY
+    // std::string query = fmt::format(
+    //     "SELECT * FROM Messages WHERE SID={} AND TID={};",
+    //     _active_session, topic_id
+    // );
+
+    std::string query = fmt::format(
+        "SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1; UPDATE Messages SET Status='Received' WHERE ID=(SELECT ID FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1) AND SID={} AND TID={} AND EXISTS (SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1);",
+        _active_session, topic_id,
+        _active_session, topic_id,
+        _active_session, topic_id,
+        _active_session, topic_id
+    );
+
+    // Output
+    std::map<int, std::map<std::string, std::string>> output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_messages_cb, (void*)&output, nullptr) != SQLITE_OK )
+        printf("Failed to receive message.\n");
+
+    return output;
+}
+
 std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDatabase::get_messages() {
     // SQL QUERY
     std::string query = "SELECT * FROM Messages;";

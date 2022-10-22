@@ -108,4 +108,47 @@ void gabe::networkingDB::Client::unsubscribe_all() {
             {"client_name", name}
         }
     );
+
+    if (response.status_code == 200) { // Everything OK!
+        _topics_map.clear();
+        // REMOVE CALLBACK
+    }
+}
+
+void gabe::networkingDB::Client::send(const std::string &topic, const std::string &message) {
+    // TODO: THIS SHOULD NOT BE A GET METHOD
+    cpr::Response response = cpr::Get(
+        cpr::Url{_address + "/send_message"},
+        cpr::Parameters{
+            {"client_id", std::to_string(_network_id)},
+            {"client_name", name},
+            {"topic_id", std::to_string(_topics_map.at(topic))},
+            {"topic_name", topic},
+            {"message", message}
+        }
+    );
+
+    if (response.status_code == 200) { // Everything OK!
+    }
+}
+
+std::string gabe::networkingDB::Client::receive_from(const std::string &topic) {
+    // This method should stuck until a response is given (or timeout!)
+    
+    // TODO: THIS SHOULD NOT BE A GET METHOD
+    cpr::Response response = cpr::Get(
+        cpr::Url{_address + "/receive_message"},
+        cpr::Parameters{
+            {"client_id", std::to_string(_network_id)},
+            {"client_name", name},
+            {"topic_id", std::to_string(_topics_map.at(topic))},
+            {"topic_name", topic}
+        }
+    );
+
+    if (response.status_code == 200) { // Everything OK!
+        return response.text;
+    }
+
+    return "No message!";
 }

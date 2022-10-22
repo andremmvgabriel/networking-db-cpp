@@ -40,7 +40,7 @@ namespace gabe {
             void unsubscribe_all();
 
             void send(const std::string &topic, const std::string &message);
-            std::string receive(const std::string &topic);
+            std::string receive_from(const std::string &topic);
         };
     }
 }
