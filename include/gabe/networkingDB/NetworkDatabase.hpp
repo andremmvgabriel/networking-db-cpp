@@ -4,10 +4,25 @@
 #include <fmt/format.h>
 
 #include <map>
+#include <vector>
 #include <thread>
 #include <chrono>
 #include <string>
 #include <sstream>
+
+
+typedef std::map<std::string, std::string> row_data_t;
+typedef std::vector<row_data_t> table_data_t;
+
+
+struct insert_res_t {
+    const uint64_t id;
+    const bool success;
+
+    insert_res_t() : id(0x00), success(false) {};
+    insert_res_t(const uint64_t& id) : id(id), success(true) {};
+};
+
 
 namespace gabe {
     namespace networkingDB {
@@ -20,10 +35,13 @@ namespace gabe {
         private: // Callbacks
             static int _get_last_inserted_row_id_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_amount_cb(void *data, int argc, char **argv, char **azColName);
-            static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
-            static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
+            [[deprecated]] static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
+            [[deprecated]] static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
+
+            static int _get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName);
+            static int _get_clients_cb_v2(void *data, int argc, char **argv, char **azColName);
         
         private:
             uint64_t _get_thread_id() {
@@ -46,34 +64,50 @@ namespace gabe {
             NetworkDatabase(); // TODO: Add database file name as input
             ~NetworkDatabase();
 
+        public: // Core Functionality
+            // Session
             uint64_t open_session();
             void close_session();
 
-            std::map<int, std::map<std::string, std::string>> get_sessions();
-            std::map<int, std::map<std::string, std::string>> get_session(uint64_t session_id);
-            std::map<int, std::map<std::string, std::string>> get_current_session();
+            // Clients
+            [[deprecated]] uint64_t add_client(const std::string &name);
+            [[deprecated]] void disconnect_client(const uint64_t &client_id, const std::string &client_name);
+            insert_res_t add_client_v2(const uint64_t& session_id, const std::string &name);
+            bool disconnect_client_v2(const uint64_t& session_id, const uint64_t &client_id, const std::string &client_name);
 
-            uint64_t add_client(const std::string &name);
-            void disconnect_client(const uint64_t &client_id, const std::string &client_name);
-
-            std::map<int, std::map<std::string, std::string>> get_clients();
-            std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);
-            std::map<int, std::map<std::string, std::string>> get_clients_in_session(uint64_t session_id);
-            std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
-
-            uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
+            // Topics
             uint64_t subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll);
             void unsubscribe(const uint64_t &client_id, const uint64_t &topic_id);
             void unsubscribe_all(const uint64_t &client_id);
+
+            // Messages
+            uint64_t add_message(const uint64_t &topic_id, const std::string &content);
+            std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
+
+        public: // Secondary Functionality - Visualization Methods
+            // Sessions
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_sessions();
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_session(uint64_t session_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_current_session();
+            table_data_t get_sessions_v2();
+            table_data_t get_session_v2(const uint64_t& session_id);
+
+            // Clients
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients();
+            std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);
+            std::map<int, std::map<std::string, std::string>> get_clients_in_session(uint64_t session_id);
+            std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
+            table_data_t get_clients_v2();
+
+            // Topics
+            uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
 
             std::map<int, std::map<std::string, std::string>> get_topics();
             std::map<int, std::map<std::string, std::string>> get_topic(uint64_t topic_id);
             std::map<int, std::map<std::string, std::string>> get_topics_in_client(uint64_t client_id);
             std::map<int, std::map<std::string, std::string>> get_topics_in_current_session();
 
-            uint64_t add_message(const uint64_t &topic_id, const std::string &content);
-            std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
-
+            // Messages
             std::map<int, std::map<std::string, std::string>> get_messages();
             std::map<int, std::map<std::string, std::string>> get_message(uint64_t message_id);
             std::map<int, std::map<std::string, std::string>> get_next_pending_message(uint64_t topic_id);

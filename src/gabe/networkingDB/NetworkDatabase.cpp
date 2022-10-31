@@ -2,7 +2,7 @@
 
 gabe::networkingDB::NetworkDatabase::NetworkDatabase() {
     _open_database();
-    _create_sessions_table();\
+    _create_sessions_table();
     _create_clients_table();
     _create_topics_table();
     _create_messages_table();
@@ -14,6 +14,10 @@ gabe::networkingDB::NetworkDatabase::~NetworkDatabase() {
 }
 
 // Public methods
+
+/////////////////////////////////////////////////////////////////////
+// Session
+/////////////////////////////////////////////////////////////////////
 
 uint64_t gabe::networkingDB::NetworkDatabase::open_session() {
     // Gets the current timestamp since epoch in milliseconds
@@ -81,6 +85,10 @@ std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDat
 std::map<int, std::map<std::string, std::string>> gabe::networkingDB::NetworkDatabase::get_current_session() {
     return get_session(_active_session);
 }
+
+/////////////////////////////////////////////////////////////////////
+// Client
+/////////////////////////////////////////////////////////////////////
 
 uint64_t gabe::networkingDB::NetworkDatabase::add_client(const std::string &name) {
     // Gets the current timestamp since epoch in milliseconds
@@ -559,6 +567,142 @@ int gabe::networkingDB::NetworkDatabase::_get_messages_cb(void *data, int argc, 
         map[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
         map[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
         output->insert(std::pair<int, std::map<std::string, std::string>>(std::stoi(argv[i]), map));
+    }
+
+    return 0;
+}
+
+// Refactored methods
+
+/////////////////////////////////////////////////////////////////////
+// Session
+/////////////////////////////////////////////////////////////////////
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_sessions_v2() {
+    // SQL QUERY
+    std::string query = "SELECT * FROM Sessions;";
+
+    // Output
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select sessions info.\n");
+    }
+
+    return output;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_session_v2(const uint64_t& session_id) {
+    // SQL QUERY
+    std::string query = fmt::format("SELECT * FROM Sessions WHERE ID = {};", session_id);
+
+    // Output variable
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select session info.\n");
+    }
+    
+    return output;
+}
+
+/////////////////////////////////////////////////////////////////////
+// Clients
+/////////////////////////////////////////////////////////////////////
+
+insert_res_t gabe::networkingDB::NetworkDatabase::add_client_v2(const uint64_t &session_id, const std::string &name) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "INSERT INTO Clients (SID,Timestamp_Conn,Status,Name,Topics,Messages) VALUES({},{},'{}','{}',{},{}); SELECT Last_Insert_Rowid();",
+        session_id, timestamp, "Active", name, 0, 0
+    );
+
+    // Inserted client ID
+    uint64_t client_id;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_last_inserted_row_id_cb, (void*)&client_id, nullptr) != SQLITE_OK ) {
+        printf("Failed to create new client.\n");
+        return insert_res_t();
+    }
+    
+    return insert_res_t(client_id);
+}
+
+bool gabe::networkingDB::NetworkDatabase::disconnect_client_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &client_name) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "UPDATE Clients SET Timestamp_Disc={}, Status='{}' WHERE ID={} AND SID={} AND Name='{}' AND Status='Active';",
+        timestamp, "Disconnected", client_id, session_id, client_name
+    );
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK ) {
+        printf("Failed to disconnect client.\n");
+        return false;
+    }
+    
+    return true;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2() {
+    // SQL QUERY
+    std::string query = "SELECT * FROM Clients;";
+
+    // Output
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select clients info.\n");
+    }
+
+    return output;
+}
+
+/////////////////////////////////////////////////////////////////////
+// Callbacks
+/////////////////////////////////////////////////////////////////////
+
+int gabe::networkingDB::NetworkDatabase::_get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName) {
+    table_data_t* output = (table_data_t*)data;
+
+    for (int i = 0; i < argc; i += 6) {
+        row_data_t row_data;
+        row_data[azColName[i+0]] = argv[i+0] ? argv[i+0] : "NULL";
+        row_data[azColName[i+1]] = argv[i+1] ? argv[i+1] : "NULL";
+        row_data[azColName[i+2]] = argv[i+2] ? argv[i+2] : "NULL";
+        row_data[azColName[i+3]] = argv[i+3] ? argv[i+3] : "NULL";
+        row_data[azColName[i+4]] = argv[i+4] ? argv[i+4] : "NULL";
+        row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
+        output->push_back(row_data);
+    }
+
+    return 0;
+}
+
+int gabe::networkingDB::NetworkDatabase::_get_clients_cb_v2(void *data, int argc, char **argv, char **azColName) {
+    table_data_t* output = (table_data_t*)data;
+
+    for (int i = 0; i < argc; i += 8) {
+        row_data_t row_data;
+        row_data[azColName[i+0]] = argv[i+0] ? argv[i+0] : "NULL";
+        row_data[azColName[i+1]] = argv[i+1] ? argv[i+1] : "NULL";
+        row_data[azColName[i+2]] = argv[i+2] ? argv[i+2] : "NULL";
+        row_data[azColName[i+3]] = argv[i+3] ? argv[i+3] : "NULL";
+        row_data[azColName[i+4]] = argv[i+4] ? argv[i+4] : "NULL";
+        row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
+        row_data[azColName[i+6]] = argv[i+5] ? argv[i+5] : "NULL";
+        row_data[azColName[i+7]] = argv[i+5] ? argv[i+5] : "NULL";
+        output->push_back(row_data);
     }
 
     return 0;

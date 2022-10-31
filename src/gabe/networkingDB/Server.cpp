@@ -1,8 +1,10 @@
 #include <gabe/networkingDB/Server.hpp>
 
 gabe::networkingDB::Server::Server() {
-    _db.open_session();
+    _active_session = _db.open_session();
     _create_routes();
+    _create_sessions_routes();
+    _create_clients_routes();
     _app.port(18080).multithreaded().run();
 }
 
@@ -446,4 +448,156 @@ void gabe::networkingDB::Server::_create_routes() {
             return crow::response(output);
         }
     );
+}
+
+// Refactored methods
+
+void gabe::networkingDB::Server::_create_sessions_routes() {
+    /////////////////////////////////////////////////////////////////////////
+    // Sessions
+    // -> 
+    /////////////////////////////////////////////////////////////////////////
+    CROW_ROUTE( _app, "/sessions_test").methods( "GET"_method )(
+        [&] (const crow::request& request) {
+            // Gets all the possible input arguments
+            auto arg_sid = request.url_params.get("session_id");
+
+            if (request.method == "GET"_method) {
+                if (arg_sid != nullptr) {               
+                    const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
+
+                    table_data_t sessions = _db.get_session_v2(session_id);
+
+                    std::string output = _serialize_sessions_as_readable(sessions);
+
+                    return crow::response(output);
+                } else {
+                    table_data_t sessions = _db.get_sessions_v2();
+
+                    std::string output = _serialize_sessions_as_readable(sessions);
+
+                    return crow::response(output);
+                }
+            }
+            // else if (request.method == "POST"_method) {}
+            // else if (request.method == "DELETE"_method) {}
+
+            return crow::response(404);
+        }
+    );
+}
+
+void gabe::networkingDB::Server::_create_clients_routes() {
+    /////////////////////////////////////////////////////////////////////////
+    // Clients
+    // -> 
+    /////////////////////////////////////////////////////////////////////////
+    CROW_ROUTE( _app, "/clients_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+        [&] (const crow::request& request) {
+            // Gets all the possible input arguments
+            auto arg_sid = request.url_params.get("session_id");
+            auto arg_cid = request.url_params.get("client_id");
+            auto arg_cname = request.url_params.get("client_name");
+
+            if (request.method == "GET"_method) {
+                if (arg_sid != nullptr) {
+                    // const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
+
+                    // table_data_t sessions = _db.get_session_v2(session_id);
+
+                    // std::string output = _serialize_sessions_as_readable(sessions);
+
+                    // return crow::response(output);
+                } else {
+                    table_data_t clients = _db.get_clients_v2();
+
+                    std::string output = _serialize_clients_as_readable(clients);
+
+                    return crow::response(output);
+                }
+            }
+            else if (request.method == "POST"_method) {
+                if (arg_sid != nullptr && arg_cname != nullptr) {
+                    if (std::string(arg_sid) == "current") {
+                        insert_res_t res = _db.add_client_v2( _active_session, arg_cname );
+
+                        if (res.success) {
+                            return crow::response(
+                                fmt::format("> Successfully created new client with ID {} in session {}.", res.id, _active_session)
+                            );
+                        }
+                    }
+                }
+            }
+            else if (request.method == "DELETE"_method) {
+                if (arg_sid != nullptr && arg_cid != nullptr && arg_cname != nullptr) {
+                    if (std::string(arg_sid) == "current") {
+                        const uint64_t client_id = std::stoul(arg_cid);
+
+                        bool success = _db.disconnect_client_v2( _active_session, client_id, arg_cname );
+
+                        if (success) {
+                            return crow::response(
+                                fmt::format("> Successfully disconnected client with ID {} in session {}.", client_id, _active_session)
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Responds with error if no condition is met
+            return crow::response(404);
+        }
+    );
+}
+
+std::string gabe::networkingDB::Server::_serialize_sessions_as_readable(const table_data_t& sessions) const {
+    std::string serialization;
+
+    if (sessions.size()) {
+        for (const row_data_t& session : sessions) {
+            // Session header
+            serialization += fmt::format(
+                "> Session {}: ({})\n",
+                session.at("ID"),
+                session.at("Timestamp_Close") == "NULL" ? "Active" : "Innactive"
+            );
+
+            for (const auto& element : session) {
+                // Session contents
+                serialization += fmt::format("  - {}: {}\n", element.first, element.second);
+            }
+
+            serialization += "\n";
+        }
+    } else {
+        serialization = "Requested data is not available.";
+    }
+
+    return std::move(serialization);
+}
+
+std::string gabe::networkingDB::Server::_serialize_clients_as_readable(const table_data_t& clients) const {
+    std::string serialization;
+
+    if (clients.size()) {
+        for (const row_data_t& client : clients) {
+            // Client header
+            serialization += fmt::format(
+                "> Client {}: ({})\n",
+                client.at("ID"), client.at("Status")
+            );
+
+            for (const auto& element : client) {
+                // Client contents
+                serialization += fmt::format("  - {}: {}\n", element.first, element.second);
+            }
+
+            serialization += "\n";
+        }
+    } else {
+        serialization = "Requested data is not available.";
+    }
+
+    return std::move(serialization);
 }
