@@ -604,7 +604,7 @@ table_data_t gabe::networkingDB::NetworkDatabase::get_session_v2(const uint64_t&
     if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select session info.\n");
     }
-    
+
     return output;
 }
 
@@ -668,6 +668,53 @@ table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2() {
     return output;
 }
 
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2(const uint64_t& session_id) {
+    // SQL QUERY
+    std::string query = fmt::format("SELECT * FROM Clients WHERE SID = {};", session_id);
+
+    // Output
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select clients info.\n");
+    }
+
+    return output;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id) {
+    // SQL QUERY
+    std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {};", client_id);
+
+    // Output variable
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select client info.\n");
+    }
+    
+    return output;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id, const uint64_t& session_id) {
+    // SQL QUERY
+    std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {} AND SID = {};", client_id, session_id);
+
+    // Output variable
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select client info.\n");
+    }
+    
+    return output;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::_get_client_v2(const std::string &query) {}
+
 /////////////////////////////////////////////////////////////////////
 // Callbacks
 /////////////////////////////////////////////////////////////////////
@@ -700,8 +747,8 @@ int gabe::networkingDB::NetworkDatabase::_get_clients_cb_v2(void *data, int argc
         row_data[azColName[i+3]] = argv[i+3] ? argv[i+3] : "NULL";
         row_data[azColName[i+4]] = argv[i+4] ? argv[i+4] : "NULL";
         row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
-        row_data[azColName[i+6]] = argv[i+5] ? argv[i+5] : "NULL";
-        row_data[azColName[i+7]] = argv[i+5] ? argv[i+5] : "NULL";
+        row_data[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
+        row_data[azColName[i+7]] = argv[i+7] ? argv[i+7] : "NULL";
         output->push_back(row_data);
     }
 

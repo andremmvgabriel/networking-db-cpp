@@ -500,19 +500,24 @@ void gabe::networkingDB::Server::_create_clients_routes() {
             auto arg_cname = request.url_params.get("client_name");
 
             if (request.method == "GET"_method) {
-                if (arg_sid != nullptr) {
-                    // const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
-
-                    // table_data_t sessions = _db.get_session_v2(session_id);
-
-                    // std::string output = _serialize_sessions_as_readable(sessions);
-
-                    // return crow::response(output);
+                if (arg_sid != nullptr && arg_cid != nullptr) {
+                    if (std::string(arg_sid) == "current") {
+                        table_data_t clients = _db.get_client_v2(std::stoul(arg_cid), _active_session);
+                        std::string output = _serialize_clients_as_readable(clients);
+                        return crow::response(output);
+                    }
+                } else if (arg_cid != nullptr) {
+                    table_data_t clients = _db.get_client_v2(std::stoul(arg_cid));
+                    std::string output = _serialize_clients_as_readable(clients);
+                    return crow::response(output);
+                } else if (arg_sid != nullptr) {
+                    const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
+                    table_data_t clients = _db.get_clients_v2(session_id);
+                    std::string output = _serialize_clients_as_readable(clients);
+                    return crow::response(output);
                 } else {
                     table_data_t clients = _db.get_clients_v2();
-
                     std::string output = _serialize_clients_as_readable(clients);
-
                     return crow::response(output);
                 }
             }

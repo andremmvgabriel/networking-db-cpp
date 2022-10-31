@@ -94,10 +94,15 @@ namespace gabe {
 
             // Clients
             [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients();
-            std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);
-            std::map<int, std::map<std::string, std::string>> get_clients_in_session(uint64_t session_id);
-            std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients_in_session(uint64_t session_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
             table_data_t get_clients_v2();
+            table_data_t get_clients_v2(const uint64_t& session_id);
+            table_data_t get_client_v2(const uint64_t &session_id);
+            table_data_t get_client_v2(const uint64_t &session_id, const uint64_t &client_id);
+
+            table_data_t _get_client_v2(const std::string &query);
 
             // Topics
             uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
