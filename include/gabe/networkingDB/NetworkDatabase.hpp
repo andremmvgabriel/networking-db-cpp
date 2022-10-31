@@ -91,6 +91,7 @@ namespace gabe {
             [[deprecated]] std::map<int, std::map<std::string, std::string>> get_current_session();
             table_data_t get_sessions_v2();
             table_data_t get_session_v2(const uint64_t& session_id);
+            table_data_t _get_sessions_table_data_v2(const std::string &query);
 
             // Clients
             [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients();
@@ -101,8 +102,7 @@ namespace gabe {
             table_data_t get_clients_v2(const uint64_t& session_id);
             table_data_t get_client_v2(const uint64_t &session_id);
             table_data_t get_client_v2(const uint64_t &session_id, const uint64_t &client_id);
-
-            table_data_t _get_client_v2(const std::string &query);
+            table_data_t _get_clients_table_data_v2(const std::string &query);
 
             // Topics
             uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);

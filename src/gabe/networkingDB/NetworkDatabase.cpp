@@ -579,30 +579,21 @@ int gabe::networkingDB::NetworkDatabase::_get_messages_cb(void *data, int argc, 
 /////////////////////////////////////////////////////////////////////
 
 table_data_t gabe::networkingDB::NetworkDatabase::get_sessions_v2() {
-    // SQL QUERY
-    std::string query = "SELECT * FROM Sessions;";
+    const std::string query = "SELECT * FROM Sessions;";
+    return _get_sessions_table_data_v2(query);
+}
 
-    // Output
+table_data_t gabe::networkingDB::NetworkDatabase::get_session_v2(const uint64_t& session_id) {
+    const std::string query = fmt::format("SELECT * FROM Sessions WHERE ID = {};", session_id);
+    return _get_sessions_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data_v2(const std::string &query) {
     table_data_t output;
 
     // SQL QUERY Execution
     if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select sessions info.\n");
-    }
-
-    return output;
-}
-
-table_data_t gabe::networkingDB::NetworkDatabase::get_session_v2(const uint64_t& session_id) {
-    // SQL QUERY
-    std::string query = fmt::format("SELECT * FROM Sessions WHERE ID = {};", session_id);
-
-    // Output variable
-    table_data_t output;
-
-    // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
-        printf("Failed to select session info.\n");
     }
 
     return output;
@@ -654,25 +645,26 @@ bool gabe::networkingDB::NetworkDatabase::disconnect_client_v2(const uint64_t &s
 }
 
 table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2() {
-    // SQL QUERY
-    std::string query = "SELECT * FROM Clients;";
-
-    // Output
-    table_data_t output;
-
-    // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
-        printf("Failed to select clients info.\n");
-    }
-
-    return output;
+    const std::string query = "SELECT * FROM Clients;";
+    return _get_clients_table_data_v2(query);
 }
 
 table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2(const uint64_t& session_id) {
-    // SQL QUERY
-    std::string query = fmt::format("SELECT * FROM Clients WHERE SID = {};", session_id);
+    const std::string query = fmt::format("SELECT * FROM Clients WHERE SID = {};", session_id);
+    return _get_clients_table_data_v2(query);
+}
 
-    // Output
+table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id) {
+    const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {};", client_id);
+    return _get_clients_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id, const uint64_t& session_id) {
+    const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {} AND SID = {};", client_id, session_id);
+    return _get_clients_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data_v2(const std::string &query) {
     table_data_t output;
 
     // SQL QUERY Execution
@@ -682,38 +674,6 @@ table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2(const uint64_t&
 
     return output;
 }
-
-table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id) {
-    // SQL QUERY
-    std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {};", client_id);
-
-    // Output variable
-    table_data_t output;
-
-    // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
-        printf("Failed to select client info.\n");
-    }
-    
-    return output;
-}
-
-table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id, const uint64_t& session_id) {
-    // SQL QUERY
-    std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {} AND SID = {};", client_id, session_id);
-
-    // Output variable
-    table_data_t output;
-
-    // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
-        printf("Failed to select client info.\n");
-    }
-    
-    return output;
-}
-
-table_data_t gabe::networkingDB::NetworkDatabase::_get_client_v2(const std::string &query) {}
 
 /////////////////////////////////////////////////////////////////////
 // Callbacks
