@@ -14,9 +14,9 @@ gabe::networkingDB::Server::Server(const std::string &file_name) : _db(file_name
     _create_messages_routes();
 }
 
-void gabe::networkingDB::Server::start() {
+void gabe::networkingDB::Server::start(const uint16_t &port) {
     _active_session = _db.open_session();
-    _app.port(18080).multithreaded().run();
+    _app.port(port).multithreaded().run();
 }
 
 // Refactored methods

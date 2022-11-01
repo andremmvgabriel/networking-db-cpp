@@ -32,7 +32,7 @@ namespace gabe {
             Server();
             Server(const std::string &file_name);
 
-            void start();
+            void start(const uint16_t &port);
         };
     }
 }
