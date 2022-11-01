@@ -27,6 +27,7 @@ namespace gabe {
             std::string _serialize_sessions_as_readable(const table_data_t& sessions) const;
             std::string _serialize_clients_as_readable(const table_data_t& clients) const;
             std::string _serialize_topics_as_readable(const table_data_t& topics) const;
+            std::string _serialize_messages_as_readable(const table_data_t& messages) const;
 
         public:
             Server();

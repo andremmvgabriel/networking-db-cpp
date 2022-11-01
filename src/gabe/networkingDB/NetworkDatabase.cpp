@@ -801,6 +801,78 @@ insert_res_t gabe::networkingDB::NetworkDatabase::add_message_v2(const uint64_t 
     return insert_res_t(message_id);
 }
 
+table_data_t gabe::networkingDB::NetworkDatabase::receive_message_v2(const uint64_t &session_id, const uint64_t &topic_id) {
+    // SQL QUERY
+    std::string query = fmt::format(
+        "SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1; UPDATE Messages SET Status='Received' WHERE ID=(SELECT ID FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1) AND SID={} AND TID={} AND EXISTS (SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1);",
+        session_id, topic_id,
+        session_id, topic_id,
+        session_id, topic_id,
+        session_id, topic_id
+    );
+
+    // Output
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_messages_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to receive message.\n");
+    }
+
+    return output;
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_v2() const {
+    std::string query = "SELECT * FROM Messages;";
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_v2(const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE SID = {};", session_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client_v2(const uint64_t &client_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE CID = {};", client_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE CID = {} AND SID = {};", client_id, session_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic_v2(const uint64_t &topic_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE TID = {};", topic_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE TID = {} AND SID = {};", topic_id, session_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_message_v2(const uint64_t &message_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE ID = {};", message_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_message_v2(const uint64_t &message_id, const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Messages WHERE ID = {} AND SID = {};", message_id, session_id);
+    return _get_messages_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::_get_messages_table_data_v2(const std::string &query) const {
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_messages_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select messages info.\n");
+    }
+
+    return output;
+}
+
 /////////////////////////////////////////////////////////////////////
 // Callbacks
 /////////////////////////////////////////////////////////////////////
@@ -855,6 +927,24 @@ int gabe::networkingDB::NetworkDatabase::_get_topics_cb_v2(void *data, int argc,
         row_data[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
         row_data[azColName[i+7]] = argv[i+7] ? argv[i+7] : "NULL";
         row_data[azColName[i+8]] = argv[i+8] ? argv[i+8] : "NULL";
+        output->push_back(row_data);
+    }
+
+    return 0;
+}
+
+int gabe::networkingDB::NetworkDatabase::_get_messages_cb_v2(void *data, int argc, char **argv, char **azColName) {
+    table_data_t* output = (table_data_t*)data;
+
+    for (int i = 0; i < argc; i += 7) {
+        row_data_t row_data;
+        row_data[azColName[i+0]] = argv[i+0] ? argv[i+0] : "NULL";
+        row_data[azColName[i+1]] = argv[i+1] ? argv[i+1] : "NULL";
+        row_data[azColName[i+2]] = argv[i+2] ? argv[i+2] : "NULL";
+        row_data[azColName[i+3]] = argv[i+3] ? argv[i+3] : "NULL";
+        row_data[azColName[i+4]] = argv[i+4] ? argv[i+4] : "NULL";
+        row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
+        row_data[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
         output->push_back(row_data);
     }
 

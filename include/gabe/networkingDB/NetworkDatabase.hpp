@@ -38,11 +38,12 @@ namespace gabe {
             [[deprecated]] static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
             [[deprecated]] static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
             [[deprecated]] static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
-            static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
+            [[deprecated]] static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
 
             static int _get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_cb_v2(void *data, int argc, char **argv, char **azColName);
             static int _get_topics_cb_v2(void *data, int argc, char **argv, char **azColName);
+            static int _get_messages_cb_v2(void *data, int argc, char **argv, char **azColName);
         
         private:
             uint64_t _get_thread_id() {
@@ -86,8 +87,9 @@ namespace gabe {
 
             // Messages
             [[deprecated]] uint64_t add_message(const uint64_t &topic_id, const std::string &content);
-            std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
-            insert_res_t add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &body);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
+            insert_res_t add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content);
+            table_data_t receive_message_v2(const uint64_t &session_id, const uint64_t &topic_id);
 
         public: // Secondary Functionality - Visualization Methods
             // Sessions
@@ -125,9 +127,18 @@ namespace gabe {
             table_data_t _get_topics_table_data_v2(const std::string &query) const;
 
             // Messages
-            std::map<int, std::map<std::string, std::string>> get_messages();
-            std::map<int, std::map<std::string, std::string>> get_message(uint64_t message_id);
-            std::map<int, std::map<std::string, std::string>> get_next_pending_message(uint64_t topic_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_messages();
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_message(uint64_t message_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_next_pending_message(uint64_t topic_id);
+            table_data_t get_messages_v2() const;
+            table_data_t get_messages_v2(const uint64_t &session_id) const;
+            table_data_t get_messages_in_client_v2(const uint64_t &client_id) const;
+            table_data_t get_messages_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const;
+            table_data_t get_messages_in_topic_v2(const uint64_t &topic_id) const;
+            table_data_t get_messages_in_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const;
+            table_data_t get_message_v2(const uint64_t &message_id) const;
+            table_data_t get_message_v2(const uint64_t &message_id, const uint64_t &session_id) const;
+            table_data_t _get_messages_table_data_v2(const std::string &query) const;
         };
     }
 }
