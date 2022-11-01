@@ -35,10 +35,6 @@ namespace gabe {
         private: // Callbacks
             static int _get_last_inserted_row_id_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_amount_cb(void *data, int argc, char **argv, char **azColName);
-            [[deprecated]] static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
-            [[deprecated]] static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
-            [[deprecated]] static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
-            [[deprecated]] static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
 
             static int _get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_cb_v2(void *data, int argc, char **argv, char **azColName);
@@ -72,39 +68,25 @@ namespace gabe {
             void close_session();
 
             // Clients
-            [[deprecated]] uint64_t add_client(const std::string &name);
-            [[deprecated]] void disconnect_client(const uint64_t &client_id, const std::string &client_name);
             insert_res_t add_client_v2(const uint64_t& session_id, const std::string &name);
             bool disconnect_client_v2(const uint64_t& session_id, const uint64_t &client_id, const std::string &client_name);
 
             // Topics
-            [[deprecated]] uint64_t subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll);
-            [[deprecated]] void unsubscribe(const uint64_t &client_id, const uint64_t &topic_id);
-            void unsubscribe_all(const uint64_t &client_id);
             insert_res_t add_topic_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll);
-            bool unsubscribe_v2(const uint64_t &session, const uint64_t &client_id, const uint64_t &topic_id);
-
+            bool unsubscribe_v2(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id);
+            bool unsubscribe_all_v2(const uint64_t &session_id, const uint64_t &client_id);
 
             // Messages
-            [[deprecated]] uint64_t add_message(const uint64_t &topic_id, const std::string &content);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
             insert_res_t add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content);
             table_data_t receive_message_v2(const uint64_t &session_id, const uint64_t &topic_id);
 
         public: // Secondary Functionality - Visualization Methods
             // Sessions
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_sessions();
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_session(uint64_t session_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_current_session();
             table_data_t get_sessions_v2();
             table_data_t get_session_v2(const uint64_t& session_id);
             table_data_t _get_sessions_table_data_v2(const std::string &query);
 
             // Clients
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients();
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_client(uint64_t client_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients_in_session(uint64_t session_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_clients_in_current_session();
             table_data_t get_clients_v2();
             table_data_t get_clients_v2(const uint64_t& session_id);
             table_data_t get_client_v2(const uint64_t &session_id);
@@ -112,12 +94,6 @@ namespace gabe {
             table_data_t _get_clients_table_data_v2(const std::string &query);
 
             // Topics
-            uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
-
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics();
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topic(uint64_t topic_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics_in_client(uint64_t client_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics_in_current_session();
             table_data_t get_topics_v2() const;
             table_data_t get_topics_v2(const uint64_t& session_id) const;
             table_data_t get_topics_in_client_v2(const uint64_t& client_id) const;
@@ -127,9 +103,6 @@ namespace gabe {
             table_data_t _get_topics_table_data_v2(const std::string &query) const;
 
             // Messages
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_messages();
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_message(uint64_t message_id);
-            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_next_pending_message(uint64_t topic_id);
             table_data_t get_messages_v2() const;
             table_data_t get_messages_v2(const uint64_t &session_id) const;
             table_data_t get_messages_in_client_v2(const uint64_t &client_id) const;

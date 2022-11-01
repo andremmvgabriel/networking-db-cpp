@@ -17,7 +17,6 @@ namespace gabe {
             uint64_t _active_session;
         
         private:
-            void _create_routes();
             void _create_sessions_routes();
             void _create_clients_routes();
             void _create_topics_routes();
