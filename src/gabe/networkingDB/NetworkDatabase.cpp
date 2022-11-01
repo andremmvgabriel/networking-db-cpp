@@ -575,7 +575,7 @@ int gabe::networkingDB::NetworkDatabase::_get_messages_cb(void *data, int argc, 
 // Refactored methods
 
 /////////////////////////////////////////////////////////////////////
-// Session
+// Sessions
 /////////////////////////////////////////////////////////////////////
 
 table_data_t gabe::networkingDB::NetworkDatabase::get_sessions_v2() {
@@ -676,6 +676,132 @@ table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data_v2(con
 }
 
 /////////////////////////////////////////////////////////////////////
+// Topics
+/////////////////////////////////////////////////////////////////////
+
+insert_res_t gabe::networkingDB::NetworkDatabase::add_topic_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "INSERT INTO Topics (SID,CID,Timestamp_Sub,Status,Name,Auto_Poll,Messages) VALUES({},{},{},'{}','{}',{},{}); SELECT Last_Insert_Rowid();",
+        session_id, client_id, timestamp, "Active", name, auto_poll, 0
+    );
+
+    // Inserted topic ID
+    uint64_t topic_id;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_last_inserted_row_id_cb, (void*)&topic_id, nullptr) != SQLITE_OK ) {
+        printf("Failed to subscribe to topic.\n");
+        return insert_res_t();
+    }
+    
+    return insert_res_t(topic_id);
+}
+
+bool gabe::networkingDB::NetworkDatabase::unsubscribe_v2(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    // SQL QUERY
+    std::string query = fmt::format(
+        "UPDATE Topics SET Timestamp_Unsub={}, Status='{}' WHERE ID={} AND SID={} AND CID={} AND Status='Active';",
+        timestamp, "Innactive", topic_id, _active_session, client_id
+    );
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK ) {
+        printf("Failed to unsubscribe topic.\n");
+        return false;
+    }
+
+    return true;
+}
+
+// void gabe::networkingDB::NetworkDatabase::unsubscribe_all(const uint64_t &client_id) {
+//     // Gets the current timestamp since epoch in milliseconds
+//     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+//     // SQL QUERY
+//     std::string query = fmt::format(
+//         "UPDATE Topics SET Timestamp_Unsub={}, Status='{}' WHERE SID={} AND CID={} AND Status='Active';",
+//         timestamp, "Innactive", _active_session, client_id
+//     );
+
+//     // SQL QUERY Execution
+//     if( sqlite3_exec(_database, &query[0], nullptr, 0, nullptr) != SQLITE_OK )
+//         printf("Failed to unsubscribe all topics.\n");
+// }
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_v2() const {
+    std::string query = "SELECT * FROM Topics;";
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_v2(const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Topics WHERE SID = {};", session_id);
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client_v2(const uint64_t &client_id) const {
+    std::string query = fmt::format("SELECT * FROM Topics WHERE CID = {};", client_id);
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Topics WHERE CID = {} AND SID = {};", client_id, session_id);
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topic_v2(const uint64_t &topic_id) const {
+    std::string query = fmt::format("SELECT * FROM Topics WHERE ID = {};", topic_id);
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::get_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const {
+    std::string query = fmt::format("SELECT * FROM Topics WHERE ID = {} AND SID = {};", topic_id, session_id);
+    return _get_topics_table_data_v2(query);
+}
+
+table_data_t gabe::networkingDB::NetworkDatabase::_get_topics_table_data_v2(const std::string &query) const {
+    table_data_t output;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_topics_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+        printf("Failed to select topics info.\n");
+    }
+
+    return output;
+}
+
+/////////////////////////////////////////////////////////////////////
+// Messages
+/////////////////////////////////////////////////////////////////////
+
+insert_res_t gabe::networkingDB::NetworkDatabase::add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content) {
+    // Gets the current timestamp since epoch in milliseconds
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    std::string query = fmt::format(
+        "INSERT INTO Messages (SID,CID,TID,Timestamp,Status,Content) VALUES({},(SELECT CID FROM Topics WHERE ID={}),{},{},'{}','{}'); SELECT Last_Insert_Rowid();",
+        session_id, topic_id, topic_id, timestamp, "Pending", content
+    );
+
+    // Output message ID
+    uint64_t message_id;
+
+    // SQL QUERY Execution
+    if( sqlite3_exec(_database, &query[0], _get_last_inserted_row_id_cb, (void*)&message_id, nullptr) != SQLITE_OK ) {
+        printf("Failed to create new message.\n");
+        return insert_res_t();
+    }
+
+    return insert_res_t(message_id);
+}
+
+/////////////////////////////////////////////////////////////////////
 // Callbacks
 /////////////////////////////////////////////////////////////////////
 
@@ -709,6 +835,26 @@ int gabe::networkingDB::NetworkDatabase::_get_clients_cb_v2(void *data, int argc
         row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
         row_data[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
         row_data[azColName[i+7]] = argv[i+7] ? argv[i+7] : "NULL";
+        output->push_back(row_data);
+    }
+
+    return 0;
+}
+
+int gabe::networkingDB::NetworkDatabase::_get_topics_cb_v2(void *data, int argc, char **argv, char **azColName) {
+    table_data_t* output = (table_data_t*)data;
+
+    for (int i = 0; i < argc; i += 9) {
+        row_data_t row_data;
+        row_data[azColName[i+0]] = argv[i+0] ? argv[i+0] : "NULL";
+        row_data[azColName[i+1]] = argv[i+1] ? argv[i+1] : "NULL";
+        row_data[azColName[i+2]] = argv[i+2] ? argv[i+2] : "NULL";
+        row_data[azColName[i+3]] = argv[i+3] ? argv[i+3] : "NULL";
+        row_data[azColName[i+4]] = argv[i+4] ? argv[i+4] : "NULL";
+        row_data[azColName[i+5]] = argv[i+5] ? argv[i+5] : "NULL";
+        row_data[azColName[i+6]] = argv[i+6] ? argv[i+6] : "NULL";
+        row_data[azColName[i+7]] = argv[i+7] ? argv[i+7] : "NULL";
+        row_data[azColName[i+8]] = argv[i+8] ? argv[i+8] : "NULL";
         output->push_back(row_data);
     }
 

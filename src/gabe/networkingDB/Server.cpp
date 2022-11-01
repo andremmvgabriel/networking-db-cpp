@@ -5,6 +5,8 @@ gabe::networkingDB::Server::Server() {
     _create_routes();
     _create_sessions_routes();
     _create_clients_routes();
+    _create_topics_routes();
+    _create_messages_routes();
     _app.port(18080).multithreaded().run();
 }
 
@@ -556,6 +558,139 @@ void gabe::networkingDB::Server::_create_clients_routes() {
     );
 }
 
+void gabe::networkingDB::Server::_create_topics_routes() {
+    /////////////////////////////////////////////////////////////////////////
+    // Topics
+    // -> 
+    /////////////////////////////////////////////////////////////////////////
+    CROW_ROUTE( _app, "/topics_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+        [&] (const crow::request& request) {
+            // Gets all the possible input arguments
+            auto arg_sid = request.url_params.get("session_id");
+            auto arg_cid = request.url_params.get("client_id");
+            auto arg_tid = request.url_params.get("topic_id");
+            auto arg_tname = request.url_params.get("topic_name");
+            auto arg_tpoll = request.url_params.get("topic_auto_poll");
+
+            if (request.method == "GET"_method) {
+                if(arg_sid && arg_tid) {
+                    // Get topic in current session
+                    if (std::string(arg_sid) == "current") {
+                        table_data_t topics = _db.get_topic_v2(std::stoul(arg_tid), _active_session);
+                        std::string output = _serialize_topics_as_readable(topics);
+                        return crow::response(output);
+                    }
+                } else if (arg_sid && arg_cid) {
+                    // Get topics in client in current session
+                    if (std::string(arg_sid) == "current") {
+                        table_data_t topics = _db.get_topics_in_client_v2(std::stoul(arg_cid), _active_session);
+                        std::string output = _serialize_topics_as_readable(topics);
+                        return crow::response(output);
+                    }
+                } else if (arg_tid) {
+                    // Get topic in lifetime
+                    table_data_t topics = _db.get_topic_v2(std::stoul(arg_tid));
+                    std::string output = _serialize_topics_as_readable(topics);
+                    return crow::response(output);
+                } else if (arg_cid) {
+                    // Get topics in client in lifetime
+                    table_data_t topics = _db.get_topics_in_client_v2(std::stoul(arg_cid));
+                    std::string output = _serialize_topics_as_readable(topics);
+                    return crow::response(output);
+                } else if(arg_sid) {
+                    // Get topics in session X
+                    // Get topics in current session
+                    const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
+                    table_data_t topics = _db.get_topics_v2(session_id);
+                    std::string output = _serialize_topics_as_readable(topics);
+                    return crow::response(output);
+                } else {
+                    // Get topics
+                    table_data_t topics = _db.get_topics_v2();
+                    std::string output = _serialize_topics_as_readable(topics);
+                    return crow::response(output);
+                }
+            }
+            else if (request.method == "POST"_method) {
+                if (arg_sid && arg_cid && arg_tname && arg_tpoll) {
+                    if (std::string(arg_sid) == "current") {
+                        const uint64_t client_id = std::stoul(arg_cid);
+                        const int auto_poll = std::stoi(arg_tpoll);
+
+                        insert_res_t res = _db.add_topic_v2( _active_session, client_id, arg_tname, auto_poll );
+
+                        if (res.success) {
+                            return crow::response(
+                                fmt::format("> Client {} successfully subscribed to new topic {} with ID {} in session {}.", client_id, arg_tname, res.id, _active_session)
+                            );
+                        }
+                    }
+                }
+            }
+            else if (request.method == "DELETE"_method) {
+                if (arg_sid && arg_cid && arg_tid && arg_tname) {
+                    if (std::string(arg_sid) == "current") {
+                        const uint64_t client_id = std::stoul(arg_cid);
+                        const uint64_t topic_id = std::stoul(arg_tid);
+
+                        bool success = _db.unsubscribe_v2( _active_session, client_id, topic_id );
+
+                        if (success) {
+                            return crow::response(
+                                fmt::format("> Successfully unsubscribed topic {} from client {} in session {}.", topic_id, client_id, _active_session)
+                            );
+                        }
+                    }
+                }
+            }
+
+            // Responds with error if no condition is met
+            return crow::response(404);
+        }
+    );
+}
+
+void gabe::networkingDB::Server::_create_messages_routes() {
+    // /////////////////////////////////////////////////////////////////////////
+    // // Messages
+    // // -> 
+    // /////////////////////////////////////////////////////////////////////////
+    // CROW_ROUTE( _app, "/messages_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+    //     [&] (const crow::request& request) {
+    //         // Gets all the possible input arguments
+    //         auto arg_sid = request.url_params.get("session_id");
+    //         auto arg_cid = request.url_params.get("client_id");
+    //         auto arg_tid = request.url_params.get("topic_id");
+    //         auto arg_mid = request.url_params.get("message_id");
+    //         auto arg_mbody = request.url_params.get("message_body");
+
+    //         if (request.method == "GET"_method) {
+    //         }
+    //         else if (request.method == "POST"_method) {
+    //             if (arg_sid && arg_cid && arg_tid && arg_mbody) {
+    //                 if (std::string(arg_sid) == "current") {
+    //                     const uint64_t client_id = std::stoul(arg_cid);
+    //                     const uint64_t topic_id = std::stoul(arg_tid);
+
+    //                     insert_res_t res = _db.add_message_v2( _active_session, topic_id, arg_mbody );
+
+    //                     if (res.success) {
+    //                         return crow::response(
+    //                             fmt::format("> Message successfully registered in topic {} with ID {} in session {}.", topic_id, res.id, _active_session)
+    //                         );
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         else if (request.method == "DELETE"_method) {
+    //         }
+
+    //         // Responds with error if no condition is met
+    //         return crow::response(404);
+    //     }
+    // );
+}
+
 std::string gabe::networkingDB::Server::_serialize_sessions_as_readable(const table_data_t& sessions) const {
     std::string serialization;
 
@@ -595,6 +730,31 @@ std::string gabe::networkingDB::Server::_serialize_clients_as_readable(const tab
 
             for (const auto& element : client) {
                 // Client contents
+                serialization += fmt::format("  - {}: {}\n", element.first, element.second);
+            }
+
+            serialization += "\n";
+        }
+    } else {
+        serialization = "Requested data is not available.";
+    }
+
+    return std::move(serialization);
+}
+
+std::string gabe::networkingDB::Server::_serialize_topics_as_readable(const table_data_t& topics) const {
+    std::string serialization;
+
+    if (topics.size()) {
+        for (const row_data_t& topic : topics) {
+            // Topic header
+            serialization += fmt::format(
+                "> Topic {}: ({})\n",
+                topic.at("ID"), topic.at("Status")
+            );
+
+            for (const auto& element : topic) {
+                // Topic contents
                 serialization += fmt::format("  - {}: {}\n", element.first, element.second);
             }
 

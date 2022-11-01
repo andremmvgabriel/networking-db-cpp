@@ -37,11 +37,12 @@ namespace gabe {
             static int _get_clients_amount_cb(void *data, int argc, char **argv, char **azColName);
             [[deprecated]] static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
             [[deprecated]] static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
-            static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
+            [[deprecated]] static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
 
             static int _get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_cb_v2(void *data, int argc, char **argv, char **azColName);
+            static int _get_topics_cb_v2(void *data, int argc, char **argv, char **azColName);
         
         private:
             uint64_t _get_thread_id() {
@@ -76,13 +77,17 @@ namespace gabe {
             bool disconnect_client_v2(const uint64_t& session_id, const uint64_t &client_id, const std::string &client_name);
 
             // Topics
-            uint64_t subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll);
-            void unsubscribe(const uint64_t &client_id, const uint64_t &topic_id);
+            [[deprecated]] uint64_t subscribe(const uint64_t &client_id, const std::string &name, bool auto_poll);
+            [[deprecated]] void unsubscribe(const uint64_t &client_id, const uint64_t &topic_id);
             void unsubscribe_all(const uint64_t &client_id);
+            insert_res_t add_topic_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll);
+            bool unsubscribe_v2(const uint64_t &session, const uint64_t &client_id, const uint64_t &topic_id);
+
 
             // Messages
-            uint64_t add_message(const uint64_t &topic_id, const std::string &content);
+            [[deprecated]] uint64_t add_message(const uint64_t &topic_id, const std::string &content);
             std::map<int, std::map<std::string, std::string>> receive_message(const uint64_t &topic_id);
+            insert_res_t add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &body);
 
         public: // Secondary Functionality - Visualization Methods
             // Sessions
@@ -107,10 +112,17 @@ namespace gabe {
             // Topics
             uint64_t add_topic(const uint64_t &client_id, const std::string &name, bool auto_poll);
 
-            std::map<int, std::map<std::string, std::string>> get_topics();
-            std::map<int, std::map<std::string, std::string>> get_topic(uint64_t topic_id);
-            std::map<int, std::map<std::string, std::string>> get_topics_in_client(uint64_t client_id);
-            std::map<int, std::map<std::string, std::string>> get_topics_in_current_session();
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics();
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topic(uint64_t topic_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics_in_client(uint64_t client_id);
+            [[deprecated]] std::map<int, std::map<std::string, std::string>> get_topics_in_current_session();
+            table_data_t get_topics_v2() const;
+            table_data_t get_topics_v2(const uint64_t& session_id) const;
+            table_data_t get_topics_in_client_v2(const uint64_t& client_id) const;
+            table_data_t get_topics_in_client_v2(const uint64_t& client_id, const uint64_t& session_id) const;
+            table_data_t get_topic_v2(const uint64_t& topic_id) const;
+            table_data_t get_topic_v2(const uint64_t& topic_id, const uint64_t& session_id) const;
+            table_data_t _get_topics_table_data_v2(const std::string &query) const;
 
             // Messages
             std::map<int, std::map<std::string, std::string>> get_messages();
