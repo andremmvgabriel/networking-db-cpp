@@ -16,7 +16,7 @@ void gabe::networkingDB::Server::_create_sessions_routes() {
     // Sessions
     // -> 
     /////////////////////////////////////////////////////////////////////////
-    CROW_ROUTE( _app, "/sessions_test").methods( "GET"_method )(
+    CROW_ROUTE( _app, "/sessions").methods( "GET"_method )(
         [&] (const crow::request& request) {
             // Gets all the possible input arguments
             auto arg_sid = request.url_params.get("session_id");
@@ -51,7 +51,7 @@ void gabe::networkingDB::Server::_create_clients_routes() {
     // Clients
     // -> 
     /////////////////////////////////////////////////////////////////////////
-    CROW_ROUTE( _app, "/clients_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+    CROW_ROUTE( _app, "/clients").methods( "GET"_method, "POST"_method, "DELETE"_method )(
         [&] (const crow::request& request) {
             // Gets all the possible input arguments
             auto arg_sid = request.url_params.get("session_id");
@@ -120,7 +120,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
     // Topics
     // -> 
     /////////////////////////////////////////////////////////////////////////
-    CROW_ROUTE( _app, "/topics_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+    CROW_ROUTE( _app, "/topics").methods( "GET"_method, "POST"_method, "DELETE"_method )(
         [&] (const crow::request& request) {
             // Gets all the possible input arguments
             auto arg_sid = request.url_params.get("session_id");
@@ -212,7 +212,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
     // Messages
     // -> 
     /////////////////////////////////////////////////////////////////////////
-    CROW_ROUTE( _app, "/messages_test").methods( "GET"_method, "POST"_method, "DELETE"_method )(
+    CROW_ROUTE( _app, "/messages").methods( "GET"_method, "POST"_method, "DELETE"_method )(
         [&] (const crow::request& request) {
             // Gets all the possible input arguments
             auto arg_sid = request.url_params.get("session_id");
