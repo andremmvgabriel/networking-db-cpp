@@ -408,17 +408,17 @@ table_data_t gabe::networkingDB::NetworkDatabase::receive_message(const uint64_t
 // Sessions - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_sessions() {
+table_data_t gabe::networkingDB::NetworkDatabase::get_sessions() const {
     const std::string query = "SELECT * FROM Sessions;";
     return _get_sessions_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_session(const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_session(const uint64_t& session_id) const {
     const std::string query = fmt::format("SELECT * FROM Sessions WHERE ID = {};", session_id);
     return _get_sessions_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data(const std::string &query) {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data(const std::string &query) const {
     table_data_t output;
 
     // SQL QUERY Execution
@@ -433,27 +433,27 @@ table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data(const
 // Clients - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_clients() {
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients() const {
     const std::string query = "SELECT * FROM Clients;";
     return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_clients(const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients(const uint64_t& session_id) const {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE SID = {};", session_id);
     return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id) const {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {};", client_id);
     return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id, const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id, const uint64_t& session_id) const {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {} AND SID = {};", client_id, session_id);
     return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data(const std::string &query) {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data(const std::string &query) const {
     table_data_t output;
 
     // SQL QUERY Execution

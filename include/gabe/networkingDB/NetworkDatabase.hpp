@@ -83,16 +83,16 @@ namespace gabe {
 
         public: // Secondary Functionality - Visualization Methods
             // Sessions
-            table_data_t get_sessions();
-            table_data_t get_session(const uint64_t& session_id);
-            table_data_t _get_sessions_table_data(const std::string &query);
+            table_data_t get_sessions() const;
+            table_data_t get_session(const uint64_t& session_id) const;
+            table_data_t _get_sessions_table_data(const std::string &query) const;
 
             // Clients
-            table_data_t get_clients();
-            table_data_t get_clients(const uint64_t& session_id);
-            table_data_t get_client(const uint64_t &session_id);
-            table_data_t get_client(const uint64_t &session_id, const uint64_t &client_id);
-            table_data_t _get_clients_table_data(const std::string &query);
+            table_data_t get_clients() const;
+            table_data_t get_clients(const uint64_t& session_id) const;
+            table_data_t get_client(const uint64_t &session_id) const;
+            table_data_t get_client(const uint64_t &session_id, const uint64_t &client_id) const;
+            table_data_t _get_clients_table_data(const std::string &query) const;
 
             // Topics
             table_data_t get_topics() const;
