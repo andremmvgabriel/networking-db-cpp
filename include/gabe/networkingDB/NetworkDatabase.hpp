@@ -49,7 +49,7 @@ namespace gabe {
             }
         
         private: // Internal functions
-            void _open_database();
+            void _open_database(const std::string &file_name);
 
             void _create_sessions_table();
             void _create_clients_table();
@@ -59,7 +59,8 @@ namespace gabe {
             uint64_t _count_clients();
 
         public:
-            NetworkDatabase(); // TODO: Add database file name as input
+            NetworkDatabase();
+            NetworkDatabase(const std::string &file_name);
             ~NetworkDatabase();
 
         public: // Core Functionality

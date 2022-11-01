@@ -5,7 +5,15 @@
 /////////////////////////////////////////////////////////////////////
 
 gabe::networkingDB::NetworkDatabase::NetworkDatabase() {
-    _open_database();
+    _open_database("database.db");
+    _create_sessions_table();
+    _create_clients_table();
+    _create_topics_table();
+    _create_messages_table();
+}
+
+gabe::networkingDB::NetworkDatabase::NetworkDatabase(const std::string &file_name) {
+    _open_database(file_name);
     _create_sessions_table();
     _create_clients_table();
     _create_topics_table();
@@ -21,8 +29,8 @@ gabe::networkingDB::NetworkDatabase::~NetworkDatabase() {
 // Internal Functions - Database Creation
 /////////////////////////////////////////////////////////////////////
 
-void gabe::networkingDB::NetworkDatabase::_open_database() {
-    if (sqlite3_open("database.db", &_database) != SQLITE_OK) {
+void gabe::networkingDB::NetworkDatabase::_open_database(const std::string &file_name) {
+    if (sqlite3_open(file_name.c_str(), &_database) != SQLITE_OK) {
         printf("Database failed to open.\n");
     }
 }
