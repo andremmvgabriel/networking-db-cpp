@@ -30,22 +30,7 @@ set( src_networking_db_lib
     src/gabe/networkingDB/Client.cpp
 )
 add_library( networking_db STATIC ${src_networking_db_lib} )
-target_link_libraries( networking_db Crow::Crow cpr::cpr )
-
-# Executables
-
-add_executable( Server main_server.cpp )
-target_link_libraries( Server networking_db fmt sqlite3 Crow::Crow )
-
-add_executable( Clients main_clients.cpp )
-target_link_libraries( Clients networking_db fmt sqlite3 cpr::cpr )
-
-
-
-add_executable( Database main_database.cpp )
-target_link_libraries( Database networking_db fmt sqlite3 )
-
-add_executable( Database2 database_architecture.cpp )
-target_link_libraries( Database2 fmt sqlite3 )
+target_link_libraries( networking_db Crow::Crow cpr::cpr fmt sqlite3 )
 
 add_subdirectory(tests)
+add_subdirectory(examples)
