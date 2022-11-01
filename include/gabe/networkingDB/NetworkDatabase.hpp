@@ -59,7 +59,7 @@ namespace gabe {
             uint64_t _count_clients();
 
         public:
-            NetworkDatabase();
+            NetworkDatabase() = default;
             NetworkDatabase(const std::string &file_name);
             ~NetworkDatabase();
 

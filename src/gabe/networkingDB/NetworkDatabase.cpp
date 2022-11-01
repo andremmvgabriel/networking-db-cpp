@@ -4,14 +4,6 @@
 // Constructor & Destructor
 /////////////////////////////////////////////////////////////////////
 
-gabe::networkingDB::NetworkDatabase::NetworkDatabase() {
-    _open_database("database.db");
-    _create_sessions_table();
-    _create_clients_table();
-    _create_topics_table();
-    _create_messages_table();
-}
-
 gabe::networkingDB::NetworkDatabase::NetworkDatabase(const std::string &file_name) {
     _open_database(file_name);
     _create_sessions_table();

@@ -30,6 +30,9 @@ namespace gabe {
 
         public:
             Server();
+            Server(const std::string &file_name);
+
+            void start();
         };
     }
 }

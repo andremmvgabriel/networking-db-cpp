@@ -1,11 +1,21 @@
 #include <gabe/networkingDB/Server.hpp>
 
-gabe::networkingDB::Server::Server() {
-    _active_session = _db.open_session();
+gabe::networkingDB::Server::Server() : _db("database.db") {
     _create_sessions_routes();
     _create_clients_routes();
     _create_topics_routes();
     _create_messages_routes();
+}
+
+gabe::networkingDB::Server::Server(const std::string &file_name) : _db(file_name) {
+    _create_sessions_routes();
+    _create_clients_routes();
+    _create_topics_routes();
+    _create_messages_routes();
+}
+
+void gabe::networkingDB::Server::start() {
+    _active_session = _db.open_session();
     _app.port(18080).multithreaded().run();
 }
 
