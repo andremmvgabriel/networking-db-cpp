@@ -25,13 +25,13 @@ void gabe::networkingDB::Server::_create_sessions_routes() {
                 if (arg_sid != nullptr) {               
                     const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
 
-                    table_data_t sessions = _db.get_session_v2(session_id);
+                    table_data_t sessions = _db.get_session(session_id);
 
                     std::string output = _serialize_sessions_as_readable(sessions);
 
                     return crow::response(output);
                 } else {
-                    table_data_t sessions = _db.get_sessions_v2();
+                    table_data_t sessions = _db.get_sessions();
 
                     std::string output = _serialize_sessions_as_readable(sessions);
 
@@ -61,21 +61,21 @@ void gabe::networkingDB::Server::_create_clients_routes() {
             if (request.method == "GET"_method) {
                 if (arg_sid != nullptr && arg_cid != nullptr) {
                     if (std::string(arg_sid) == "current") {
-                        table_data_t clients = _db.get_client_v2(std::stoul(arg_cid), _active_session);
+                        table_data_t clients = _db.get_client(std::stoul(arg_cid), _active_session);
                         std::string output = _serialize_clients_as_readable(clients);
                         return crow::response(output);
                     }
                 } else if (arg_cid != nullptr) {
-                    table_data_t clients = _db.get_client_v2(std::stoul(arg_cid));
+                    table_data_t clients = _db.get_client(std::stoul(arg_cid));
                     std::string output = _serialize_clients_as_readable(clients);
                     return crow::response(output);
                 } else if (arg_sid != nullptr) {
                     const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
-                    table_data_t clients = _db.get_clients_v2(session_id);
+                    table_data_t clients = _db.get_clients(session_id);
                     std::string output = _serialize_clients_as_readable(clients);
                     return crow::response(output);
                 } else {
-                    table_data_t clients = _db.get_clients_v2();
+                    table_data_t clients = _db.get_clients();
                     std::string output = _serialize_clients_as_readable(clients);
                     return crow::response(output);
                 }
@@ -83,7 +83,7 @@ void gabe::networkingDB::Server::_create_clients_routes() {
             else if (request.method == "POST"_method) {
                 if (arg_sid != nullptr && arg_cname != nullptr) {
                     if (std::string(arg_sid) == "current") {
-                        insert_res_t res = _db.add_client_v2( _active_session, arg_cname );
+                        insert_res_t res = _db.add_client( _active_session, arg_cname );
 
                         if (res.success) {
                             return crow::response(
@@ -98,7 +98,7 @@ void gabe::networkingDB::Server::_create_clients_routes() {
                     if (std::string(arg_sid) == "current") {
                         const uint64_t client_id = std::stoul(arg_cid);
 
-                        bool success = _db.disconnect_client_v2( _active_session, client_id, arg_cname );
+                        bool success = _db.disconnect_client( _active_session, client_id, arg_cname );
 
                         if (success) {
                             return crow::response(
@@ -133,37 +133,37 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                 if(arg_sid && arg_tid) {
                     // Get topic in current session
                     if (std::string(arg_sid) == "current") {
-                        table_data_t topics = _db.get_topic_v2(std::stoul(arg_tid), _active_session);
+                        table_data_t topics = _db.get_topic(std::stoul(arg_tid), _active_session);
                         std::string output = _serialize_topics_as_readable(topics);
                         return crow::response(output);
                     }
                 } else if (arg_sid && arg_cid) {
                     // Get topics in client in current session
                     if (std::string(arg_sid) == "current") {
-                        table_data_t topics = _db.get_topics_in_client_v2(std::stoul(arg_cid), _active_session);
+                        table_data_t topics = _db.get_topics_in_client(std::stoul(arg_cid), _active_session);
                         std::string output = _serialize_topics_as_readable(topics);
                         return crow::response(output);
                     }
                 } else if (arg_tid) {
                     // Get topic in lifetime
-                    table_data_t topics = _db.get_topic_v2(std::stoul(arg_tid));
+                    table_data_t topics = _db.get_topic(std::stoul(arg_tid));
                     std::string output = _serialize_topics_as_readable(topics);
                     return crow::response(output);
                 } else if (arg_cid) {
                     // Get topics in client in lifetime
-                    table_data_t topics = _db.get_topics_in_client_v2(std::stoul(arg_cid));
+                    table_data_t topics = _db.get_topics_in_client(std::stoul(arg_cid));
                     std::string output = _serialize_topics_as_readable(topics);
                     return crow::response(output);
                 } else if(arg_sid) {
                     // Get topics in session X
                     // Get topics in current session
                     const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
-                    table_data_t topics = _db.get_topics_v2(session_id);
+                    table_data_t topics = _db.get_topics(session_id);
                     std::string output = _serialize_topics_as_readable(topics);
                     return crow::response(output);
                 } else {
                     // Get topics
-                    table_data_t topics = _db.get_topics_v2();
+                    table_data_t topics = _db.get_topics();
                     std::string output = _serialize_topics_as_readable(topics);
                     return crow::response(output);
                 }
@@ -174,7 +174,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                         const uint64_t client_id = std::stoul(arg_cid);
                         const int auto_poll = std::stoi(arg_tpoll);
 
-                        insert_res_t res = _db.add_topic_v2( _active_session, client_id, arg_tname, auto_poll );
+                        insert_res_t res = _db.add_topic( _active_session, client_id, arg_tname, auto_poll );
 
                         if (res.success) {
                             return crow::response(
@@ -190,7 +190,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                         const uint64_t client_id = std::stoul(arg_cid);
                         const uint64_t topic_id = std::stoul(arg_tid);
 
-                        bool success = _db.unsubscribe_v2( _active_session, client_id, topic_id );
+                        bool success = _db.unsubscribe( _active_session, client_id, topic_id );
 
                         if (success) {
                             return crow::response(
@@ -226,7 +226,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                     // Get message in current session
                     if (std::string(arg_sid) == "current") {
                         const uint64_t message_id = std::stoul(arg_mid);
-                        table_data_t messages = _db.get_message_v2(message_id, _active_session);
+                        table_data_t messages = _db.get_message(message_id, _active_session);
                         std::string output = _serialize_messages_as_readable(messages);
                         return crow::response(output);
                     }
@@ -234,7 +234,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                     // Get messages in topic z in current session
                     if (std::string(arg_sid) == "current") {
                         const uint64_t topic_id = std::stoul(arg_tid);
-                        table_data_t messages = _db.get_messages_in_topic_v2(topic_id, _active_session);
+                        table_data_t messages = _db.get_messages_in_topic(topic_id, _active_session);
                         std::string output = _serialize_messages_as_readable(messages);
                         return crow::response(output);
                     }
@@ -242,38 +242,38 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                     // Get messages in client y in current session
                     if (std::string(arg_sid) == "current") {
                         const uint64_t client_id = std::stoul(arg_cid);
-                        table_data_t messages = _db.get_messages_in_client_v2(client_id, _active_session);
+                        table_data_t messages = _db.get_messages_in_client(client_id, _active_session);
                         std::string output = _serialize_messages_as_readable(messages);
                         return crow::response(output);
                     }
                 } else if (arg_mid) {
                     // Get message in lifetime
                     const uint64_t message_id = std::stoul(arg_mid);
-                    table_data_t messages = _db.get_message_v2(message_id);
+                    table_data_t messages = _db.get_message(message_id);
                     std::string output = _serialize_messages_as_readable(messages);
                     return crow::response(output);
                 } else if (arg_tid) {
                     // Get messages in topic z in lifetime
                     const uint64_t topic_id = std::stoul(arg_tid);
-                    table_data_t messages = _db.get_messages_in_topic_v2(topic_id);
+                    table_data_t messages = _db.get_messages_in_topic(topic_id);
                     std::string output = _serialize_messages_as_readable(messages);
                     return crow::response(output);
                 } else if (arg_cid) {
                     // Get messages in client y in lifetime
                     const uint64_t client_id = std::stoul(arg_cid);
-                    table_data_t messages = _db.get_messages_in_client_v2(client_id);
+                    table_data_t messages = _db.get_messages_in_client(client_id);
                     std::string output = _serialize_messages_as_readable(messages);
                     return crow::response(output);
                 } else if (arg_sid) {
                     // Get messages in session x
                     // Get messages in current session
                     const uint64_t session_id = std::string(arg_sid) == "current" ? _active_session : std::stoul(arg_sid);
-                    table_data_t messages = _db.get_messages_v2(session_id);
+                    table_data_t messages = _db.get_messages(session_id);
                     std::string output = _serialize_messages_as_readable(messages);
                     return crow::response(output);
                 } else {
                     // Get messages in lifetime
-                    table_data_t messages = _db.get_messages_v2();
+                    table_data_t messages = _db.get_messages();
                     std::string output = _serialize_messages_as_readable(messages);
                     return crow::response(output);
                 }
@@ -283,7 +283,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                     if (std::string(arg_sid) == "current") {
                         const uint64_t topic_id = std::stoul(arg_tid);
 
-                        insert_res_t res = _db.add_message_v2( _active_session, topic_id, arg_mcontent );
+                        insert_res_t res = _db.add_message( _active_session, topic_id, arg_mcontent );
 
                         if (res.success) {
                             return crow::response(
@@ -298,7 +298,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                     if (std::string(arg_sid) == "current") {
                         const uint64_t topic_id = std::stoul(arg_tid);
 
-                        table_data_t message = _db.receive_message_v2( _active_session, topic_id );
+                        table_data_t message = _db.receive_message( _active_session, topic_id );
 
                         if (!message.empty()) {
                             return crow::response( message.at(0).at("Content") );

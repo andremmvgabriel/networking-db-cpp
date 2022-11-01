@@ -128,7 +128,7 @@ int gabe::networkingDB::NetworkDatabase::_get_clients_amount_cb(void *data, int 
     return 0;
 }
 
-int gabe::networkingDB::NetworkDatabase::_get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName) {
+int gabe::networkingDB::NetworkDatabase::_get_sessions_cb(void *data, int argc, char **argv, char **azColName) {
     table_data_t* output = (table_data_t*)data;
 
     for (int i = 0; i < argc; i += 6) {
@@ -145,7 +145,7 @@ int gabe::networkingDB::NetworkDatabase::_get_sessions_cb_v2(void *data, int arg
     return 0;
 }
 
-int gabe::networkingDB::NetworkDatabase::_get_clients_cb_v2(void *data, int argc, char **argv, char **azColName) {
+int gabe::networkingDB::NetworkDatabase::_get_clients_cb(void *data, int argc, char **argv, char **azColName) {
     table_data_t* output = (table_data_t*)data;
 
     for (int i = 0; i < argc; i += 8) {
@@ -164,7 +164,7 @@ int gabe::networkingDB::NetworkDatabase::_get_clients_cb_v2(void *data, int argc
     return 0;
 }
 
-int gabe::networkingDB::NetworkDatabase::_get_topics_cb_v2(void *data, int argc, char **argv, char **azColName) {
+int gabe::networkingDB::NetworkDatabase::_get_topics_cb(void *data, int argc, char **argv, char **azColName) {
     table_data_t* output = (table_data_t*)data;
 
     for (int i = 0; i < argc; i += 9) {
@@ -184,7 +184,7 @@ int gabe::networkingDB::NetworkDatabase::_get_topics_cb_v2(void *data, int argc,
     return 0;
 }
 
-int gabe::networkingDB::NetworkDatabase::_get_messages_cb_v2(void *data, int argc, char **argv, char **azColName) {
+int gabe::networkingDB::NetworkDatabase::_get_messages_cb(void *data, int argc, char **argv, char **azColName) {
     table_data_t* output = (table_data_t*)data;
 
     for (int i = 0; i < argc; i += 7) {
@@ -245,7 +245,7 @@ void gabe::networkingDB::NetworkDatabase::close_session() {
 // Clients - Core Functionality
 /////////////////////////////////////////////////////////////////////
 
-insert_res_t gabe::networkingDB::NetworkDatabase::add_client_v2(const uint64_t &session_id, const std::string &name) {
+insert_res_t gabe::networkingDB::NetworkDatabase::add_client(const uint64_t &session_id, const std::string &name) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -267,7 +267,7 @@ insert_res_t gabe::networkingDB::NetworkDatabase::add_client_v2(const uint64_t &
     return insert_res_t(client_id);
 }
 
-bool gabe::networkingDB::NetworkDatabase::disconnect_client_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &client_name) {
+bool gabe::networkingDB::NetworkDatabase::disconnect_client(const uint64_t &session_id, const uint64_t &client_id, const std::string &client_name) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -290,7 +290,7 @@ bool gabe::networkingDB::NetworkDatabase::disconnect_client_v2(const uint64_t &s
 // Topics - Core Functionality
 /////////////////////////////////////////////////////////////////////
 
-insert_res_t gabe::networkingDB::NetworkDatabase::add_topic_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll) {
+insert_res_t gabe::networkingDB::NetworkDatabase::add_topic(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -312,7 +312,7 @@ insert_res_t gabe::networkingDB::NetworkDatabase::add_topic_v2(const uint64_t &s
     return insert_res_t(topic_id);
 }
 
-bool gabe::networkingDB::NetworkDatabase::unsubscribe_v2(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id) {
+bool gabe::networkingDB::NetworkDatabase::unsubscribe(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -331,7 +331,7 @@ bool gabe::networkingDB::NetworkDatabase::unsubscribe_v2(const uint64_t &session
     return true;
 }
 
-bool gabe::networkingDB::NetworkDatabase::unsubscribe_all_v2(const uint64_t &session_id, const uint64_t &client_id) {
+bool gabe::networkingDB::NetworkDatabase::unsubscribe_all(const uint64_t &session_id, const uint64_t &client_id) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -354,7 +354,7 @@ bool gabe::networkingDB::NetworkDatabase::unsubscribe_all_v2(const uint64_t &ses
 // Messages - Core Functionality
 /////////////////////////////////////////////////////////////////////
 
-insert_res_t gabe::networkingDB::NetworkDatabase::add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content) {
+insert_res_t gabe::networkingDB::NetworkDatabase::add_message(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content) {
     // Gets the current timestamp since epoch in milliseconds
     uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
@@ -375,7 +375,7 @@ insert_res_t gabe::networkingDB::NetworkDatabase::add_message_v2(const uint64_t 
     return insert_res_t(message_id);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::receive_message_v2(const uint64_t &session_id, const uint64_t &topic_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::receive_message(const uint64_t &session_id, const uint64_t &topic_id) {
     // SQL QUERY
     std::string query = fmt::format(
         "SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1; UPDATE Messages SET Status='Received' WHERE ID=(SELECT ID FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1) AND SID={} AND TID={} AND EXISTS (SELECT * FROM Messages WHERE SID={} AND TID={} AND Status='Pending' ORDER BY ID ASC LIMIT 1);",
@@ -389,7 +389,7 @@ table_data_t gabe::networkingDB::NetworkDatabase::receive_message_v2(const uint6
     table_data_t output;
 
     // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_messages_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+    if( sqlite3_exec(_database, &query[0], _get_messages_cb, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to receive message.\n");
     }
 
@@ -400,21 +400,21 @@ table_data_t gabe::networkingDB::NetworkDatabase::receive_message_v2(const uint6
 // Sessions - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_sessions_v2() {
+table_data_t gabe::networkingDB::NetworkDatabase::get_sessions() {
     const std::string query = "SELECT * FROM Sessions;";
-    return _get_sessions_table_data_v2(query);
+    return _get_sessions_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_session_v2(const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_session(const uint64_t& session_id) {
     const std::string query = fmt::format("SELECT * FROM Sessions WHERE ID = {};", session_id);
-    return _get_sessions_table_data_v2(query);
+    return _get_sessions_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data_v2(const std::string &query) {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data(const std::string &query) {
     table_data_t output;
 
     // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_sessions_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+    if( sqlite3_exec(_database, &query[0], _get_sessions_cb, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select sessions info.\n");
     }
 
@@ -425,31 +425,31 @@ table_data_t gabe::networkingDB::NetworkDatabase::_get_sessions_table_data_v2(co
 // Clients - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2() {
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients() {
     const std::string query = "SELECT * FROM Clients;";
-    return _get_clients_table_data_v2(query);
+    return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_clients_v2(const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_clients(const uint64_t& session_id) {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE SID = {};", session_id);
-    return _get_clients_table_data_v2(query);
+    return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id) {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {};", client_id);
-    return _get_clients_table_data_v2(query);
+    return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_client_v2(const uint64_t& client_id, const uint64_t& session_id) {
+table_data_t gabe::networkingDB::NetworkDatabase::get_client(const uint64_t& client_id, const uint64_t& session_id) {
     const std::string query = fmt::format("SELECT * FROM Clients WHERE ID = {} AND SID = {};", client_id, session_id);
-    return _get_clients_table_data_v2(query);
+    return _get_clients_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data_v2(const std::string &query) {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data(const std::string &query) {
     table_data_t output;
 
     // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_clients_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+    if( sqlite3_exec(_database, &query[0], _get_clients_cb, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select clients info.\n");
     }
 
@@ -460,41 +460,41 @@ table_data_t gabe::networkingDB::NetworkDatabase::_get_clients_table_data_v2(con
 // Topics - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topics_v2() const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics() const {
     std::string query = "SELECT * FROM Topics;";
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topics_v2(const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics(const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Topics WHERE SID = {};", session_id);
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client_v2(const uint64_t &client_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client(const uint64_t &client_id) const {
     std::string query = fmt::format("SELECT * FROM Topics WHERE CID = {};", client_id);
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topics_in_client(const uint64_t &client_id, const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Topics WHERE CID = {} AND SID = {};", client_id, session_id);
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topic_v2(const uint64_t &topic_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topic(const uint64_t &topic_id) const {
     std::string query = fmt::format("SELECT * FROM Topics WHERE ID = {};", topic_id);
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_topic(const uint64_t &topic_id, const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Topics WHERE ID = {} AND SID = {};", topic_id, session_id);
-    return _get_topics_table_data_v2(query);
+    return _get_topics_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_topics_table_data_v2(const std::string &query) const {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_topics_table_data(const std::string &query) const {
     table_data_t output;
 
     // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_topics_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+    if( sqlite3_exec(_database, &query[0], _get_topics_cb, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select topics info.\n");
     }
 
@@ -505,51 +505,51 @@ table_data_t gabe::networkingDB::NetworkDatabase::_get_topics_table_data_v2(cons
 // Messages - Visualization Functionality
 /////////////////////////////////////////////////////////////////////
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_v2() const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages() const {
     std::string query = "SELECT * FROM Messages;";
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_v2(const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages(const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE SID = {};", session_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client_v2(const uint64_t &client_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client(const uint64_t &client_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE CID = {};", client_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_client(const uint64_t &client_id, const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE CID = {} AND SID = {};", client_id, session_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic_v2(const uint64_t &topic_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic(const uint64_t &topic_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE TID = {};", topic_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_messages_in_topic(const uint64_t &topic_id, const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE TID = {} AND SID = {};", topic_id, session_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_message_v2(const uint64_t &message_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_message(const uint64_t &message_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE ID = {};", message_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::get_message_v2(const uint64_t &message_id, const uint64_t &session_id) const {
+table_data_t gabe::networkingDB::NetworkDatabase::get_message(const uint64_t &message_id, const uint64_t &session_id) const {
     std::string query = fmt::format("SELECT * FROM Messages WHERE ID = {} AND SID = {};", message_id, session_id);
-    return _get_messages_table_data_v2(query);
+    return _get_messages_table_data(query);
 }
 
-table_data_t gabe::networkingDB::NetworkDatabase::_get_messages_table_data_v2(const std::string &query) const {
+table_data_t gabe::networkingDB::NetworkDatabase::_get_messages_table_data(const std::string &query) const {
     table_data_t output;
 
     // SQL QUERY Execution
-    if( sqlite3_exec(_database, &query[0], _get_messages_cb_v2, (void*)&output, nullptr) != SQLITE_OK ) {
+    if( sqlite3_exec(_database, &query[0], _get_messages_cb, (void*)&output, nullptr) != SQLITE_OK ) {
         printf("Failed to select messages info.\n");
     }
 

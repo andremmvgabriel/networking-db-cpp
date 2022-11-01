@@ -36,10 +36,10 @@ namespace gabe {
             static int _get_last_inserted_row_id_cb(void *data, int argc, char **argv, char **azColName);
             static int _get_clients_amount_cb(void *data, int argc, char **argv, char **azColName);
 
-            static int _get_sessions_cb_v2(void *data, int argc, char **argv, char **azColName);
-            static int _get_clients_cb_v2(void *data, int argc, char **argv, char **azColName);
-            static int _get_topics_cb_v2(void *data, int argc, char **argv, char **azColName);
-            static int _get_messages_cb_v2(void *data, int argc, char **argv, char **azColName);
+            static int _get_sessions_cb(void *data, int argc, char **argv, char **azColName);
+            static int _get_clients_cb(void *data, int argc, char **argv, char **azColName);
+            static int _get_topics_cb(void *data, int argc, char **argv, char **azColName);
+            static int _get_messages_cb(void *data, int argc, char **argv, char **azColName);
         
         private:
             uint64_t _get_thread_id() {
@@ -68,50 +68,50 @@ namespace gabe {
             void close_session();
 
             // Clients
-            insert_res_t add_client_v2(const uint64_t& session_id, const std::string &name);
-            bool disconnect_client_v2(const uint64_t& session_id, const uint64_t &client_id, const std::string &client_name);
+            insert_res_t add_client(const uint64_t& session_id, const std::string &name);
+            bool disconnect_client(const uint64_t& session_id, const uint64_t &client_id, const std::string &client_name);
 
             // Topics
-            insert_res_t add_topic_v2(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll);
-            bool unsubscribe_v2(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id);
-            bool unsubscribe_all_v2(const uint64_t &session_id, const uint64_t &client_id);
+            insert_res_t add_topic(const uint64_t &session_id, const uint64_t &client_id, const std::string &name, bool auto_poll);
+            bool unsubscribe(const uint64_t &session_id, const uint64_t &client_id, const uint64_t &topic_id);
+            bool unsubscribe_all(const uint64_t &session_id, const uint64_t &client_id);
 
             // Messages
-            insert_res_t add_message_v2(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content);
-            table_data_t receive_message_v2(const uint64_t &session_id, const uint64_t &topic_id);
+            insert_res_t add_message(const uint64_t &session_id, const uint64_t &topic_id, const std::string &content);
+            table_data_t receive_message(const uint64_t &session_id, const uint64_t &topic_id);
 
         public: // Secondary Functionality - Visualization Methods
             // Sessions
-            table_data_t get_sessions_v2();
-            table_data_t get_session_v2(const uint64_t& session_id);
-            table_data_t _get_sessions_table_data_v2(const std::string &query);
+            table_data_t get_sessions();
+            table_data_t get_session(const uint64_t& session_id);
+            table_data_t _get_sessions_table_data(const std::string &query);
 
             // Clients
-            table_data_t get_clients_v2();
-            table_data_t get_clients_v2(const uint64_t& session_id);
-            table_data_t get_client_v2(const uint64_t &session_id);
-            table_data_t get_client_v2(const uint64_t &session_id, const uint64_t &client_id);
-            table_data_t _get_clients_table_data_v2(const std::string &query);
+            table_data_t get_clients();
+            table_data_t get_clients(const uint64_t& session_id);
+            table_data_t get_client(const uint64_t &session_id);
+            table_data_t get_client(const uint64_t &session_id, const uint64_t &client_id);
+            table_data_t _get_clients_table_data(const std::string &query);
 
             // Topics
-            table_data_t get_topics_v2() const;
-            table_data_t get_topics_v2(const uint64_t& session_id) const;
-            table_data_t get_topics_in_client_v2(const uint64_t& client_id) const;
-            table_data_t get_topics_in_client_v2(const uint64_t& client_id, const uint64_t& session_id) const;
-            table_data_t get_topic_v2(const uint64_t& topic_id) const;
-            table_data_t get_topic_v2(const uint64_t& topic_id, const uint64_t& session_id) const;
-            table_data_t _get_topics_table_data_v2(const std::string &query) const;
+            table_data_t get_topics() const;
+            table_data_t get_topics(const uint64_t& session_id) const;
+            table_data_t get_topics_in_client(const uint64_t& client_id) const;
+            table_data_t get_topics_in_client(const uint64_t& client_id, const uint64_t& session_id) const;
+            table_data_t get_topic(const uint64_t& topic_id) const;
+            table_data_t get_topic(const uint64_t& topic_id, const uint64_t& session_id) const;
+            table_data_t _get_topics_table_data(const std::string &query) const;
 
             // Messages
-            table_data_t get_messages_v2() const;
-            table_data_t get_messages_v2(const uint64_t &session_id) const;
-            table_data_t get_messages_in_client_v2(const uint64_t &client_id) const;
-            table_data_t get_messages_in_client_v2(const uint64_t &client_id, const uint64_t &session_id) const;
-            table_data_t get_messages_in_topic_v2(const uint64_t &topic_id) const;
-            table_data_t get_messages_in_topic_v2(const uint64_t &topic_id, const uint64_t &session_id) const;
-            table_data_t get_message_v2(const uint64_t &message_id) const;
-            table_data_t get_message_v2(const uint64_t &message_id, const uint64_t &session_id) const;
-            table_data_t _get_messages_table_data_v2(const std::string &query) const;
+            table_data_t get_messages() const;
+            table_data_t get_messages(const uint64_t &session_id) const;
+            table_data_t get_messages_in_client(const uint64_t &client_id) const;
+            table_data_t get_messages_in_client(const uint64_t &client_id, const uint64_t &session_id) const;
+            table_data_t get_messages_in_topic(const uint64_t &topic_id) const;
+            table_data_t get_messages_in_topic(const uint64_t &topic_id, const uint64_t &session_id) const;
+            table_data_t get_message(const uint64_t &message_id) const;
+            table_data_t get_message(const uint64_t &message_id, const uint64_t &session_id) const;
+            table_data_t _get_messages_table_data(const std::string &query) const;
         };
     }
 }
