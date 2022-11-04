@@ -27,9 +27,9 @@ void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t
         cpr::Parameters{{"session_id","current"},{"client_name",name}}
     );
 
-    printf("Status: %ld\n", response.status_code);
-    printf("Header: %s\n", response.header["content-type"].c_str());
-    printf("Text: %s\n", response.text.c_str());
+    // printf("Status: %ld\n", response.status_code);
+    // printf("Header: %s\n", response.header["content-type"].c_str());
+    // printf("Text: %s\n", response.text.c_str());
 
     if (response.status_code == 200) {
         _network_id = std::stoul(response.text);
@@ -62,18 +62,15 @@ void gabe::networkingDB::Client::disconnect() {
 }
 
 void gabe::networkingDB::Client::subscribe(const std::string &topic) {
-    // TODO: THIS SHOULD NOT BE A GET METHOD
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address + "/subscribe"},
+    cpr::Response response = cpr::Post(
+        cpr::Url{_address + "/topics"},
         cpr::Parameters{
+            {"session_id", "current"},
             {"client_id", std::to_string(_network_id)},
-            {"client_name", name},
-            {"topic", topic},
-            {"auto_poll", "0"}
+            {"topic_name", topic},
+            {"topic_auto_poll", "0"}
         }
     );
-
-    // printf("");
 
     if (response.status_code == 200) { // Everything OK!
         uint64_t topic_id = std::stoul( response.text );
@@ -82,12 +79,11 @@ void gabe::networkingDB::Client::subscribe(const std::string &topic) {
 }
 
 void gabe::networkingDB::Client::unsubscribe(const std::string &topic) {
-    // TODO: THIS SHOULD NOT BE A GET METHOD
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address + "/unsubscribe"},
+    cpr::Response response = cpr::Delete(
+        cpr::Url{_address + "/topics"},
         cpr::Parameters{
+            {"session_id", "current"},
             {"client_id", std::to_string(_network_id)},
-            {"client_name", name},
             {"topic_id", std::to_string(_topics_map.at(topic))},
             {"topic_name", topic}
         }
@@ -100,12 +96,12 @@ void gabe::networkingDB::Client::unsubscribe(const std::string &topic) {
 }
 
 void gabe::networkingDB::Client::unsubscribe_all() {
-    // TODO: THIS SHOULD NOT BE A GET METHOD
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address + "/unsubscribe_all"},
+    cpr::Response response = cpr::Delete(
+        cpr::Url{_address + "/topics"},
         cpr::Parameters{
+            {"session_id", "current"},
             {"client_id", std::to_string(_network_id)},
-            {"client_name", name}
+            {"unsub_all", "yes"}
         }
     );
 

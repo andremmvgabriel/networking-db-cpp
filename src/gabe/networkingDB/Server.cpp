@@ -136,6 +136,15 @@ void gabe::networkingDB::Server::_create_topics_routes() {
             auto arg_tid = request.url_params.get("topic_id");
             auto arg_tname = request.url_params.get("topic_name");
             auto arg_tpoll = request.url_params.get("topic_auto_poll");
+            auto arg_unsub_all = request.url_params.get("unsub_all");
+
+            if (arg_sid) printf("Received arg_sid ID\n");
+            if (arg_cid) printf("Received arg_cid ID\n");
+            if (arg_tid) printf("Received arg_tid ID\n");
+            if (arg_tname) printf("Received arg_tname ID\n");
+            if (arg_tpoll) printf("Received arg_tpoll ID\n");
+            if (arg_unsub_all) printf("Received arg_unsub_all ID\n");
+            printf("\n\n");
 
             if (request.method == "GET"_method) {
                 if(arg_sid && arg_tid) {
@@ -191,7 +200,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                 }
             }
             else if (request.method == "DELETE"_method) {
-                if (arg_sid && arg_cid && arg_tid && arg_tname) {
+                if (arg_sid && arg_cid && arg_tid) {
                     if (std::string(arg_sid) == "current") {
                         const uint64_t client_id = std::stoul(arg_cid);
                         const uint64_t topic_id = std::stoul(arg_tid);
@@ -201,6 +210,32 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                         if (success) {
                             return crow::response(
                                 fmt::format("> Successfully unsubscribed topic {} from client {} in session {}.", topic_id, client_id, _active_session)
+                            );
+                        }
+                    }
+                } else if (arg_sid && arg_cid && arg_unsub_all) {
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
+                    if (std::string(arg_sid) == "current") {
+                        const uint64_t client_id = std::stoul(arg_cid);
+
+                        bool success = _db.unsubscribe_all(_active_session, client_id);
+
+                        if (success) {
+                            return crow::response(
+                                fmt::format("> Successfully unsubscribed all topics from client {} in session {}.", client_id, _active_session)
                             );
                         }
                     }

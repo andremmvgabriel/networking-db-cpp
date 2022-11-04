@@ -319,7 +319,7 @@ bool gabe::networkingDB::NetworkDatabase::unsubscribe(const uint64_t &session_id
     // SQL QUERY
     std::string query = fmt::format(
         "UPDATE Topics SET Timestamp_Unsub={}, Status='{}' WHERE ID={} AND SID={} AND CID={} AND Status='Active';",
-        timestamp, "Innactive", topic_id, _active_session, client_id
+        timestamp, "Innactive", topic_id, session_id, client_id
     );
 
     // SQL QUERY Execution
