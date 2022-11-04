@@ -96,9 +96,7 @@ void gabe::networkingDB::Server::_create_clients_routes() {
                         insert_res_t res = _db.add_client( _active_session, arg_cname );
 
                         if (res.success) {
-                            return crow::response(
-                                fmt::format("> Successfully created new client with ID {} in session {}.", res.id, _active_session)
-                            );
+                            return crow::response( fmt::format("{}", res.id) );
                         }
                     }
                 }
@@ -187,9 +185,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                         insert_res_t res = _db.add_topic( _active_session, client_id, arg_tname, auto_poll );
 
                         if (res.success) {
-                            return crow::response(
-                                fmt::format("> Client {} successfully subscribed to new topic {} with ID {} in session {}.", client_id, arg_tname, res.id, _active_session)
-                            );
+                            return crow::response( fmt::format("{}", res.id) );
                         }
                     }
                 }
@@ -296,9 +292,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
                         insert_res_t res = _db.add_message( _active_session, topic_id, arg_mcontent );
 
                         if (res.success) {
-                            return crow::response(
-                                fmt::format("> Message successfully registered in topic {} with ID {} in session {}.", topic_id, res.id, _active_session)
-                            );
+                            return crow::response( fmt::format("{}", res.id) );
                         }
                     }
                 }

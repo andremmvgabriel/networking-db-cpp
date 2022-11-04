@@ -30,7 +30,7 @@ namespace gabe {
             ~Client();
 
             void connect(const std::string &host, const uint16_t& port);
-            void connect(const std::string &host, const uint16_t& port, const std::string &username, const std::string &password);
+            // void connect(const std::string &host, const uint16_t& port, const std::string &username, const std::string &password);
 
             void disconnect();
 

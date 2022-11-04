@@ -12,24 +12,24 @@ gabe::networkingDB::Client::Client(const std::string &name) : name(name) {
 }
 
 gabe::networkingDB::Client::~Client() {
-    if (_instances.unique()) disconnect();
+    // if (_instances.unique()) { disconnect(); }
 }
 
 void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t &port) {
     // Safety check
-    if (_network_id) return;
+    if (_network_id) { return; }
 
     // Creates the address
     _address = fmt::format("http://{}:{}", host, port);
 
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address + "/connect"},
-        cpr::Parameters{{"name", name}}
+    cpr::Response response = cpr::Post(
+        cpr::Url{_address + "/clients"},
+        cpr::Parameters{{"session_id","current"},{"client_name",name}}
     );
 
-    // printf("Status: %ld\n", response.status_code);
-    // printf("Header: %s\n", response.header["content-type"].c_str());
-    // printf("Text: %s\n", response.text.c_str());
+    printf("Status: %ld\n", response.status_code);
+    printf("Header: %s\n", response.header["content-type"].c_str());
+    printf("Text: %s\n", response.text.c_str());
 
     if (response.status_code == 200) {
         _network_id = std::stoul(response.text);
@@ -37,21 +37,21 @@ void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t
     }
 }
 
-void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t &port, const std::string &username, const std::string &password) {
-    // Safety check
-    if (_network_id) return;
+// void gabe::networkingDB::Client::connect(const std::string &host, const uint16_t &port, const std::string &username, const std::string &password) {
+//     // Safety check
+//     if (_network_id) return;
 
-    // Creates the address
-    _address = fmt::format("https://{}:{}", host, port);
-    _username = username;
-    _password = password;
+//     // Creates the address
+//     _address = fmt::format("https://{}:{}", host, port);
+//     _username = username;
+//     _password = password;
 
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address},
-        cpr::Authentication{_username, _password, cpr::AuthMode::BASIC}
-        // cpr::Parameters{{"name", "name"}}
-    );
-}
+//     cpr::Response response = cpr::Get(
+//         cpr::Url{_address},
+//         cpr::Authentication{_username, _password, cpr::AuthMode::BASIC}
+//         // cpr::Parameters{{"name", "name"}}
+//     );
+// }
 
 void gabe::networkingDB::Client::disconnect() {
     // TODO: THIS SHOULD NOT BE A GET METHOD
