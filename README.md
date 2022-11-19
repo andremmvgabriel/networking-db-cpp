@@ -29,6 +29,9 @@ This environment is prepared to have two build types (Debug and Release).
 
 Insert info here
 
+Needed VSCODE extensions:
+- Dev Containers
+
 ``` bash
 # To create a copy of vscode contents
 ./contrib/import_devcontainer.bash --copy
@@ -42,6 +45,9 @@ Insert info here
 # Optional settings - .clang-tidy environment
 
 Insert info here
+
+Needed VSCODE extensions:
+- clangd
 
 ``` bash
 # To create a copy of vscode contents
