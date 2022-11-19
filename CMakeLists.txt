@@ -11,9 +11,17 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin)
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/lib)
 
+# Creates a preprocessing macro for DEBUG BUILD TYPE
+if ( CMAKE_BUILD_TYPE MATCHES "Debug" )
+    add_definitions( -DDEBUG )
+else()
+    add_definitions( -DNDEBUG )
+endif()
+
 # Dependencies packages
 find_package(Crow)
 
+# TODO(gabe) - Maybe do not have this lib in CMake 
 include(FetchContent)
 FetchContent_Declare(cpr
     GIT_REPOSITORY https://github.com/libcpr/cpr.git

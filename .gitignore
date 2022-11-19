@@ -31,12 +31,16 @@
 *.out
 *.app
 
-#
+# User Added
 bin/*
 lib/*
 build/*
 *.db
 project_manager.sh
-.vscode
-
+.cache
 *.uut
+
+# Contrib links/copies
+.vscode
+.devcontainer
+.clang-tidy
