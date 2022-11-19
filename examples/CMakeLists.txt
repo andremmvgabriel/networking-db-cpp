@@ -16,6 +16,10 @@ endfunction(add_example)
 
 # Examples
 add_example( server )
+add_example( client )
+add_example( main )
+add_example( main2 )
+add_example( main3 )
 
 # Creates a target flag for the example executables
 add_custom_target ( examples

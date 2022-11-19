@@ -9,6 +9,7 @@
 - Safety check: Check if the client already contains the topic.
 - Find a better way to insert new data into tables.
 - Security connections
+- Verify if topic name already exists before adding
 
 
 # Optional settings - .vscode environment

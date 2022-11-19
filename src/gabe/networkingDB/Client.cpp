@@ -112,15 +112,13 @@ void gabe::networkingDB::Client::unsubscribe_all() {
 }
 
 void gabe::networkingDB::Client::send(const std::string &topic, const std::string &message) {
-    // TODO: THIS SHOULD NOT BE A GET METHOD
-    cpr::Response response = cpr::Get(
-        cpr::Url{_address + "/send_message"},
+    cpr::Response response = cpr::Post(
+        cpr::Url{_address + "/messages"},
         cpr::Parameters{
-            {"client_id", std::to_string(_network_id)},
-            {"client_name", name},
-            {"topic_id", std::to_string(_topics_map.at(topic))},
+            {"session_id", "current"},
+            // {"client_id", std::to_string(_network_id)},
             {"topic_name", topic},
-            {"message", message}
+            {"message_content", message}
         }
     );
 

@@ -138,14 +138,6 @@ void gabe::networkingDB::Server::_create_topics_routes() {
             auto arg_tpoll = request.url_params.get("topic_auto_poll");
             auto arg_unsub_all = request.url_params.get("unsub_all");
 
-            if (arg_sid) printf("Received arg_sid ID\n");
-            if (arg_cid) printf("Received arg_cid ID\n");
-            if (arg_tid) printf("Received arg_tid ID\n");
-            if (arg_tname) printf("Received arg_tname ID\n");
-            if (arg_tpoll) printf("Received arg_tpoll ID\n");
-            if (arg_unsub_all) printf("Received arg_unsub_all ID\n");
-            printf("\n\n");
-
             if (request.method == "GET"_method) {
                 if(arg_sid && arg_tid) {
                     // Get topic in current session
@@ -214,21 +206,7 @@ void gabe::networkingDB::Server::_create_topics_routes() {
                         }
                     }
                 } else if (arg_sid && arg_cid && arg_unsub_all) {
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    printf("DSAGFASFGHBASJFBASFASFBAJSFAS\n");
-                    if (std::string(arg_sid) == "current") {
+                    if (std::string(arg_sid) == "current" && std::string(arg_unsub_all) == "yes") {
                         const uint64_t client_id = std::stoul(arg_cid);
 
                         bool success = _db.unsubscribe_all(_active_session, client_id);
@@ -260,6 +238,7 @@ void gabe::networkingDB::Server::_create_messages_routes() {
             auto arg_cid = request.url_params.get("client_id");
             auto arg_tid = request.url_params.get("topic_id");
             auto arg_mid = request.url_params.get("message_id");
+            auto arg_tname = request.url_params.get("topic_name");
             auto arg_mcontent = request.url_params.get("message_content");
 
             if (request.method == "GET"_method) {
